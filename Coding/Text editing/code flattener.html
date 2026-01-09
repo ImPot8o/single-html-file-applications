@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Code Flattener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section, .output-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .flatten-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .flatten-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .flatten-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 HTML Code Flattener</h1>
+            <p>Remove all indentation and whitespace from your HTML code</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="section-title">
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Input HTML Code
+                </div>
+                <textarea 
+                    id="inputCode" 
+                    placeholder="Paste your HTML code here...
+
+Example:
+<div class='container'>
+    <h1>Hello World</h1>
+    <p>This is a paragraph.</p>
+</div>"
+                ></textarea>
+            </div>
+
+            <div class="button-container">
+                <button class="flatten-btn" onclick="flattenHTML()">
+                    ⚡ Flatten HTML Code
+                </button>
+            </div>
+
+            <div class="output-section">
+                <div class="section-title">
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Flattened Output
+                </div>
+                <textarea 
+                    id="outputCode" 
+                    placeholder="Your flattened HTML will appear here..."
+                    readonly
+                ></textarea>
+                <button class="copy-btn" onclick="copyToClipboard()" style="display: none;" id="copyBtn">
+                    📋 Copy to Clipboard
+                </button>
+                <div class="success-message" id="successMessage">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    Copied to clipboard!
+                </div>
+            </div>
+
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-item">
+                    <div class="stat-number" id="originalSize">0</div>
+                    <div class="stat-label">Original Characters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="flattenedSize">0</div>
+                    <div class="stat-label">Flattened Characters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="reduction">0%</div>
+                    <div class="stat-label">Size Reduction</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function flattenHTML() {
+            const inputCode = document.getElementById('inputCode').value.trim();
+            
+            if (!inputCode) {
+                alert('Please enter some HTML code to flatten!');
+                return;
+            }
+
+            // Flatten the HTML by removing all indentation and extra whitespace
+            const flattened = inputCode
+                // Remove leading/trailing whitespace from each line
+                .split('\n')
+                .map(line => line.trim())
+                // Remove empty lines
+                .filter(line => line.length > 0)
+                // Join everything into one line
+                .join('')
+                // Remove extra spaces between tags
+                .replace(/>\s+</g, '><')
+                // Remove spaces around = in attributes
+                .replace(/\s*=\s*/g, '=')
+                // Remove extra spaces within tags (but preserve single spaces between attributes)
+                .replace(/\s+/g, ' ')
+                // Clean up any remaining extra spaces
+                .trim();
+
+            // Display the result
+            const outputTextarea = document.getElementById('outputCode');
+            outputTextarea.value = flattened;
+
+            // Show copy button and stats
+            document.getElementById('copyBtn').style.display = 'inline-block';
+            showStats(inputCode, flattened);
+        }
+
+        function showStats(original, flattened) {
+            const originalSize = original.length;
+            const flattenedSize = flattened.length;
+            const reduction = Math.round(((originalSize - flattenedSize) / originalSize) * 100);
+
+            document.getElementById('originalSize').textContent = originalSize.toLocaleString();
+            document.getElementById('flattenedSize').textContent = flattenedSize.toLocaleString();
+            document.getElementById('reduction').textContent = reduction + '%';
+            
+            document.getElementById('stats').style.display = 'flex';
+        }
+
+        function copyToClipboard() {
+            const outputCode = document.getElementById('outputCode');
+            outputCode.select();
+            outputCode.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                showSuccessMessage();
+            } catch (err) {
+                // Fallback for modern browsers
+                navigator.clipboard.writeText(outputCode.value).then(() => {
+                    showSuccessMessage();
+                }).catch(() => {
+                    alert('Failed to copy to clipboard. Please select and copy manually.');
+                });
+            }
+        }
+
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.style.display = 'flex';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 2000);
+        }
+
+        // Auto-resize textareas
+        document.getElementById('inputCode').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(200, this.scrollHeight) + 'px';
+        });
+
+        // Add some sample code on page load for demonstration
+        window.addEventListener('load', function() {
+            const sampleHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Page</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to My Website</h1>
+        <p>This is a sample paragraph with some text.</p>
+        <ul>
+            <li>First item</li>
+            <li>Second item</li>
+            <li>Third item</li>
+        </ul>
+    </div>
+</body>
+</html>`;
+            
+            document.getElementById('inputCode').value = sampleHTML;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97d2f1d154dde825',t:'MTc1NzU0OTQ1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

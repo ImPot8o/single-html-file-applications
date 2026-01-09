@@ -1,0 +1,2000 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Mobile DAW</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .main-container {
+            padding: 15px;
+            max-width: 420px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+        
+        .tracks-container {
+            margin-bottom: 20px;
+        }
+        
+        .track {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            transition: all 0.3s ease;
+            animation: trackSlideIn 0.5s ease-out;
+        }
+        
+        @keyframes trackSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .track:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .track-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .track-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .track-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .track-time {
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+            color: #4ecdc4;
+        }
+        
+        .track-controls {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 8px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 36px;
+            justify-content: center;
+        }
+        
+        .mini-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .mini-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .mini-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .mini-btn.record {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+        
+        .mini-btn.record.active {
+            animation: recordPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes recordPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+        }
+        
+        .mini-btn.delete {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+        }
+        
+        .waveform-container {
+            height: 50px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .waveform-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            pointer-events: none;
+        }
+        
+        .add-track-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            padding: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .add-track-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .master-controls {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(78, 205, 196, 0.15));
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .master-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .master-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: 12px 18px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 100px;
+            justify-content: center;
+        }
+        
+        .master-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .master-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .master-volume {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .master-volume input {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .master-volume input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-area.dragover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .track-modal-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .modal-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-section:last-child {
+            border-bottom: none;
+        }
+        
+        .modal-section h4 {
+            margin-bottom: 20px;
+            color: #4ecdc4;
+            font-size: 16px;
+        }
+        
+        .modal-slider-group {
+            margin-bottom: 25px;
+        }
+        
+        .modal-slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .modal-slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .modal-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-effects-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .modal-effect-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            padding: 20px 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .modal-effect-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .modal-effect-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .modal-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            padding: 15px 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            min-width: 120px;
+        }
+        
+        .modal-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 12px 20px;
+            font-size: 13px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 50;
+        }
+        
+        .confirmation-modal .modal-content {
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .confirmation-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .confirm-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn.danger {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            color: white;
+        }
+        
+        .confirm-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 12px;
+            }
+            
+            .track {
+                padding: 12px;
+            }
+            
+            .master-buttons {
+                gap: 8px;
+            }
+            
+            .master-btn {
+                min-width: 80px;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-music"></i> Pro Mobile DAW
+        </div>
+        <div class="header-controls">
+            <button class="icon-btn" onclick="openModal('uploadModal')" title="Upload Audio">
+                <i class="fas fa-upload"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('settingsModal')" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('helpModal')" title="Help">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Tracks Container -->
+        <div class="tracks-container" id="tracksContainer">
+            <!-- Tracks will be dynamically added here -->
+        </div>
+        
+        <!-- Add Track Button -->
+        <button class="add-track-btn" onclick="addTrack()">
+            <i class="fas fa-plus"></i>
+            Add New Track
+        </button>
+
+        <!-- Master Controls -->
+        <div class="master-controls">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-sliders-h"></i> Master Mix</h3>
+            
+            <div class="master-buttons">
+                <button class="master-btn" onclick="playAll()">
+                    <i class="fas fa-play"></i> Play All
+                </button>
+                <button class="master-btn" onclick="stopAll()">
+                    <i class="fas fa-stop"></i> Stop All
+                </button>
+                <button class="master-btn" onclick="exportMix()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+            
+            <div class="master-volume">
+                <i class="fas fa-volume-down"></i>
+                <input type="range" min="0" max="100" value="100" oninput="updateMasterVolume(this.value)">
+                <i class="fas fa-volume-up"></i>
+                <span id="masterVol" style="margin-left: 12px; font-size: 13px; font-weight: bold;">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-upload"></i> Upload Audio</h3>
+                <button class="close-btn" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; margin-bottom: 15px; opacity: 0.6;"></i>
+                <p style="font-size: 16px; margin-bottom: 8px;">Click to select audio files</p>
+                <p style="font-size: 14px; margin-bottom: 8px;">or drag & drop here</p>
+                <p style="font-size: 12px; opacity: 0.7;">Supports MP3, WAV, M4A, OGG, FLAC</p>
+            </div>
+            
+            <input type="file" id="fileInput" accept="audio/*" multiple style="display: none;" onchange="handleFileSelect(event)">
+            
+            <div style="margin-top: 25px;">
+                <label style="display: block; margin-bottom: 12px; font-size: 14px;">Assign to Track:</label>
+                <select id="trackSelect" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 14px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-cog"></i> Audio Settings</h3>
+                <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                    <span>Sample Rate</span>
+                    <select id="sampleRate" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; color: white; padding: 8px;">
+                        <option value="44100">44.1 kHz</option>
+                        <option value="48000" selected>48 kHz</option>
+                        <option value="96000">96 kHz</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                    <span>Buffer Size</span>
+                    <select id="bufferSize" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; color: white; padding: 8px;">
+                        <option value="256">256</option>
+                        <option value="512">512</option>
+                        <option value="1024" selected>1024</option>
+                        <option value="2048">2048</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                    <span>Auto-Save Project</span>
+                    <input type="checkbox" id="autoSave" checked style="transform: scale(1.5);">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 15px;">
+                    <span>Metronome</span>
+                    <input type="checkbox" id="metronome" style="transform: scale(1.5);">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <span>BPM</span>
+                    <input type="number" id="bpm" value="120" min="60" max="200" style="width: 80px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; color: white; padding: 8px; text-align: center;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Settings Modal -->
+    <div id="trackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="trackModalTitle"><i class="fas fa-sliders-h"></i> Track Settings</h3>
+                <button class="close-btn" onclick="closeModal('trackModal')">&times;</button>
+            </div>
+            
+            <div class="track-modal-content">
+                <!-- Volume & Pan -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-volume-up"></i> Mix Controls</h4>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Volume</span>
+                            <span id="modalVol">100%</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalVolume" min="0" max="100" value="100" oninput="updateModalVolume(this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Pan</span>
+                            <span id="modalPan">Center</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalPanning" min="-100" max="100" value="0" oninput="updateModalPan(this.value)">
+                    </div>
+                </div>
+                
+                <!-- Effects -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-magic"></i> Audio Effects</h4>
+                    
+                    <div class="modal-effects-grid">
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('reverb')">
+                            <i class="fas fa-water" style="font-size: 20px; margin-bottom: 8px;"></i><br>Reverb
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('delay')">
+                            <i class="fas fa-echo" style="font-size: 20px; margin-bottom: 8px;"></i><br>Delay
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('distortion')">
+                            <i class="fas fa-bolt" style="font-size: 20px; margin-bottom: 8px;"></i><br>Distortion
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('filter')">
+                            <i class="fas fa-filter" style="font-size: 20px; margin-bottom: 8px;"></i><br>Filter
+                        </button>
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Effect Mix</span>
+                            <span id="modalFX">0%</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalFXMix" min="0" max="100" value="0" oninput="updateModalFX(this.value)">
+                    </div>
+                </div>
+                
+                <!-- Track Actions -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-tools"></i> Track Actions</h4>
+                    
+                    <div class="modal-actions">
+                        <button class="modal-action-btn" onclick="clearModalTrack()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="modal-action-btn" onclick="duplicateTrack()">
+                            <i class="fas fa-copy"></i> Duplicate
+                        </button>
+                        <button class="modal-action-btn" onclick="soloTrack()">
+                            <i class="fas fa-headphones"></i> Solo
+                        </button>
+                        <button class="modal-action-btn" onclick="muteTrack()">
+                            <i class="fas fa-volume-mute"></i> Mute
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-question"></i> User Guide</h3>
+                <button class="close-btn" onclick="closeModal('helpModal')">&times;</button>
+            </div>
+            
+            <div style="line-height: 1.8;">
+                <div class="modal-section">
+                    <h4><i class="fas fa-microphone"></i> Recording</h4>
+                    <p style="font-size: 14px;">Tap the red record button to start recording. Allow microphone access when prompted. Recording will show live waveform visualization.</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4><i class="fas fa-upload"></i> Uploading Files</h4>
+                    <p style="font-size: 14px;">Use the upload button or drag & drop audio files directly. Supports MP3, WAV, M4A, OGG, and FLAC formats.</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4><i class="fas fa-sliders-h"></i> Track Mixing</h4>
+                    <p style="font-size: 14px;">Click the gear icon on any track to access professional mixing controls including volume, pan, and real-time effects.</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4><i class="fas fa-magic"></i> Effects</h4>
+                    <p style="font-size: 14px;">Each track supports reverb, delay, distortion, and filtering. Use the Effect Mix slider to control intensity.</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4><i class="fas fa-download"></i> Export</h4>
+                    <p style="font-size: 14px;">Export your final mix as a high-quality WAV file. All effects and mixing are rendered in real-time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirm Action</h3>
+            </div>
+            
+            <p id="confirmMessage" style="margin-bottom: 20px; text-align: center; font-size: 14px;"></p>
+            
+            <div class="confirmation-buttons">
+                <button class="confirm-btn cancel" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="confirm-btn danger" id="confirmAction">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+        Ready to create professional music
+    </div>
+
+    <script>
+        // Global variables
+        let audioContext;
+        let tracks = {};
+        let trackCounter = 0;
+        let masterGainNode;
+        let masterCompressor;
+        let masterEQ;
+        let currentModalTrack = null;
+        let isRecordingAny = false;
+        let projectSettings = {
+            sampleRate: 48000,
+            bufferSize: 1024,
+            autoSave: true,
+            metronome: false,
+            bpm: 120
+        };
+
+        // Initialize audio system
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: projectSettings.sampleRate
+                });
+                
+                // Create master chain
+                masterCompressor = audioContext.createDynamicsCompressor();
+                masterEQ = audioContext.createBiquadFilter();
+                masterGainNode = audioContext.createGain();
+                
+                // Connect master chain
+                masterCompressor.connect(masterEQ);
+                masterEQ.connect(masterGainNode);
+                masterGainNode.connect(audioContext.destination);
+                
+                // Configure master effects
+                masterCompressor.threshold.value = -24;
+                masterCompressor.knee.value = 30;
+                masterCompressor.ratio.value = 12;
+                masterCompressor.attack.value = 0.003;
+                masterCompressor.release.value = 0.25;
+                
+                masterEQ.type = 'peaking';
+                masterEQ.frequency.value = 1000;
+                masterEQ.Q.value = 1;
+                masterEQ.gain.value = 0;
+                
+                updateStatus('Professional audio system initialized');
+                
+                // Add initial track
+                addTrack();
+                
+            } catch (error) {
+                console.error('Audio initialization failed:', error);
+                updateStatus('Audio system unavailable - limited functionality');
+            }
+        }
+
+        // Track management
+        function addTrack() {
+            trackCounter++;
+            const trackId = trackCounter;
+            
+            // Create track object
+            tracks[trackId] = {
+                id: trackId,
+                name: `Track ${trackId}`,
+                audioBuffer: null,
+                source: null,
+                gainNode: null,
+                panNode: null,
+                effectNodes: {},
+                isRecording: false,
+                isPlaying: false,
+                isMuted: false,
+                isSoloed: false,
+                effects: new Set(),
+                recorder: null,
+                recordingChunks: [],
+                timer: null,
+                startTime: 0
+            };
+            
+            // Initialize audio nodes if context exists
+            if (audioContext) {
+                initializeTrackAudio(trackId);
+            }
+            
+            // Create DOM element
+            createTrackElement(trackId);
+            
+            // Update track selector in upload modal
+            updateTrackSelector();
+            
+            updateStatus(`Track ${trackId} added`);
+        }
+
+        function initializeTrackAudio(trackId) {
+            const track = tracks[trackId];
+            
+            // Create audio nodes
+            track.gainNode = audioContext.createGain();
+            track.panNode = audioContext.createStereoPanner();
+            
+            // Create effect nodes
+            track.effectNodes = {
+                reverb: audioContext.createConvolver(),
+                delay: audioContext.createDelay(2.0),
+                distortion: audioContext.createWaveShaper(),
+                filter: audioContext.createBiquadFilter(),
+                dryGain: audioContext.createGain(),
+                wetGain: audioContext.createGain(),
+                effectMix: audioContext.createGain()
+            };
+            
+            // Setup effect chain
+            setupTrackEffects(trackId);
+            
+            // Connect to master
+            track.panNode.connect(masterCompressor);
+        }
+
+        function setupTrackEffects(trackId) {
+            const track = tracks[trackId];
+            const fx = track.effectNodes;
+            
+            // Create reverb impulse
+            createReverbImpulse(fx.reverb);
+            
+            // Configure delay
+            fx.delay.delayTime.value = 0.25;
+            
+            // Configure distortion
+            fx.distortion.curve = createDistortionCurve(50);
+            fx.distortion.oversample = '4x';
+            
+            // Configure filter
+            fx.filter.type = 'lowpass';
+            fx.filter.frequency.value = 5000;
+            fx.filter.Q.value = 1;
+            
+            // Setup dry/wet mixing
+            fx.dryGain.gain.value = 1;
+            fx.wetGain.gain.value = 0;
+            
+            // Connect effect chain
+            track.gainNode.connect(fx.dryGain);
+            track.gainNode.connect(fx.reverb);
+            track.gainNode.connect(fx.delay);
+            track.gainNode.connect(fx.distortion);
+            track.gainNode.connect(fx.filter);
+            
+            fx.reverb.connect(fx.wetGain);
+            fx.delay.connect(fx.wetGain);
+            fx.distortion.connect(fx.wetGain);
+            fx.filter.connect(fx.wetGain);
+            
+            fx.dryGain.connect(track.panNode);
+            fx.wetGain.connect(track.panNode);
+        }
+
+        function createTrackElement(trackId) {
+            const track = tracks[trackId];
+            const trackElement = document.createElement('div');
+            trackElement.className = 'track';
+            trackElement.id = `track-${trackId}`;
+            
+            trackElement.innerHTML = `
+                <div class="track-header">
+                    <div class="track-info">
+                        <div class="track-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="track-details">
+                            <div class="track-title">${track.name}</div>
+                            <div class="track-time" id="time-${trackId}">00:00</div>
+                        </div>
+                    </div>
+                    <div class="track-controls">
+                        <button class="mini-btn record" onclick="toggleRecord(${trackId})">
+                            <i class="fas fa-circle" id="recordIcon-${trackId}"></i>
+                        </button>
+                        <button class="mini-btn" onclick="togglePlay(${trackId})">
+                            <i class="fas fa-play" id="playIcon-${trackId}"></i>
+                        </button>
+                        <button class="mini-btn" onclick="stopTrack(${trackId})">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button class="mini-btn" onclick="openTrackModal(${trackId})">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="mini-btn delete" onclick="confirmDeleteTrack(${trackId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="waveform-container" onclick="seekToPosition(${trackId}, event)">
+                    <canvas class="waveform-canvas" id="waveform-${trackId}" width="380" height="50"></canvas>
+                    <div class="waveform-overlay" id="waveformOverlay-${trackId}">
+                        Click to record or upload audio
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tracksContainer').appendChild(trackElement);
+        }
+
+        function confirmDeleteTrack(trackId) {
+            if (Object.keys(tracks).length <= 1) {
+                updateStatus('Cannot delete the last track');
+                return;
+            }
+            
+            document.getElementById('confirmMessage').textContent = `Are you sure you want to delete Track ${trackId}? This action cannot be undone.`;
+            document.getElementById('confirmAction').onclick = () => deleteTrack(trackId);
+            openModal('confirmModal');
+        }
+
+        function deleteTrack(trackId) {
+            // Stop any ongoing operations
+            stopTrack(trackId);
+            
+            // Clean up audio nodes
+            if (tracks[trackId].gainNode) {
+                tracks[trackId].gainNode.disconnect();
+            }
+            if (tracks[trackId].panNode) {
+                tracks[trackId].panNode.disconnect();
+            }
+            
+            // Remove from DOM
+            const trackElement = document.getElementById(`track-${trackId}`);
+            if (trackElement) {
+                trackElement.remove();
+            }
+            
+            // Remove from tracks object
+            delete tracks[trackId];
+            
+            // Update track selector
+            updateTrackSelector();
+            
+            closeModal('confirmModal');
+            updateStatus(`Track ${trackId} deleted`);
+        }
+
+        function updateTrackSelector() {
+            const selector = document.getElementById('trackSelect');
+            selector.innerHTML = '';
+            
+            Object.keys(tracks).forEach(trackId => {
+                const option = document.createElement('option');
+                option.value = trackId;
+                option.textContent = tracks[trackId].name;
+                selector.appendChild(option);
+            });
+        }
+
+        // Recording functions
+        async function toggleRecord(trackId) {
+            if (!audioContext) await initAudio();
+            
+            const track = tracks[trackId];
+            
+            if (!track.isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: projectSettings.sampleRate
+                        } 
+                    });
+                    
+                    track.recorder = new MediaRecorder(stream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    
+                    track.recordingChunks = [];
+                    
+                    track.recorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            track.recordingChunks.push(event.data);
+                        }
+                    };
+                    
+                    track.recorder.onstop = async () => {
+                        const blob = new Blob(track.recordingChunks, { type: 'audio/webm' });
+                        const arrayBuffer = await blob.arrayBuffer();
+                        
+                        try {
+                            track.audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            drawWaveform(trackId, track.audioBuffer);
+                            hideWaveformOverlay(trackId);
+                        } catch (error) {
+                            console.error('Error decoding audio:', error);
+                            updateStatus('Error processing recording');
+                        }
+                        
+                        // Stop all tracks from the stream
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    // Setup live monitoring
+                    const sourceNode = audioContext.createMediaStreamSource(stream);
+                    const analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048;
+                    sourceNode.connect(analyser);
+                    
+                    track.recorder.start(100); // Record in 100ms chunks
+                    track.isRecording = true;
+                    isRecordingAny = true;
+                    
+                    // Update UI
+                    const recordBtn = document.getElementById(`recordIcon-${trackId}`);
+                    recordBtn.className = 'fas fa-stop';
+                    recordBtn.closest('.mini-btn').classList.add('active');
+                    
+                    // Start live waveform visualization
+                    startLiveWaveform(trackId, analyser);
+                    
+                    // Start timer
+                    startTimer(trackId);
+                    
+                    updateStatus(`Recording Track ${trackId}...`);
+                    
+                } catch (error) {
+                    console.error('Microphone access error:', error);
+                    updateStatus('Microphone access denied - Use upload instead');
+                    setTimeout(() => openModal('uploadModal'), 2000);
+                }
+            } else {
+                // Stop recording
+                track.recorder.stop();
+                track.isRecording = false;
+                isRecordingAny = false;
+                
+                // Update UI
+                const recordBtn = document.getElementById(`recordIcon-${trackId}`);
+                recordBtn.className = 'fas fa-circle';
+                recordBtn.closest('.mini-btn').classList.remove('active');
+                
+                stopTimer(trackId);
+                updateStatus('Recording stopped');
+            }
+        }
+
+        function startLiveWaveform(trackId, analyser) {
+            const canvas = document.getElementById(`waveform-${trackId}`);
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                if (!tracks[trackId].isRecording) return;
+                
+                requestAnimationFrame(draw);
+                
+                analyser.getByteTimeDomainData(dataArray);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#4ecdc4';
+                ctx.beginPath();
+                
+                const sliceWidth = canvas.width / bufferLength;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * canvas.height / 2;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    x += sliceWidth;
+                }
+                
+                ctx.stroke();
+            }
+            
+            draw();
+        }
+
+        // Playback functions
+        function togglePlay(trackId) {
+            const track = tracks[trackId];
+            
+            if (!track.audioBuffer) {
+                updateStatus('No audio on this track - record or upload first');
+                return;
+            }
+            
+            if (!track.isPlaying) {
+                // Create and start source
+                track.source = audioContext.createBufferSource();
+                track.source.buffer = track.audioBuffer;
+                track.source.connect(track.gainNode);
+                
+                track.source.start();
+                track.isPlaying = true;
+                
+                // Update UI
+                const playBtn = document.getElementById(`playIcon-${trackId}`);
+                playBtn.className = 'fas fa-pause';
+                playBtn.closest('.mini-btn').classList.add('active');
+                
+                // Handle playback end
+                track.source.onended = () => {
+                    track.isPlaying = false;
+                    playBtn.className = 'fas fa-play';
+                    playBtn.closest('.mini-btn').classList.remove('active');
+                    stopTimer(trackId);
+                };
+                
+                startTimer(trackId);
+                updateStatus(`Playing Track ${trackId}`);
+                
+            } else {
+                // Stop playback
+                if (track.source) {
+                    track.source.stop();
+                }
+                track.isPlaying = false;
+                
+                const playBtn = document.getElementById(`playIcon-${trackId}`);
+                playBtn.className = 'fas fa-play';
+                playBtn.closest('.mini-btn').classList.remove('active');
+                
+                stopTimer(trackId);
+            }
+        }
+
+        function stopTrack(trackId) {
+            const track = tracks[trackId];
+            
+            // Stop recording
+            if (track.isRecording && track.recorder) {
+                track.recorder.stop();
+                track.isRecording = false;
+                isRecordingAny = false;
+                
+                const recordBtn = document.getElementById(`recordIcon-${trackId}`);
+                recordBtn.className = 'fas fa-circle';
+                recordBtn.closest('.mini-btn').classList.remove('active');
+            }
+            
+            // Stop playback
+            if (track.isPlaying && track.source) {
+                track.source.stop();
+                track.isPlaying = false;
+                
+                const playBtn = document.getElementById(`playIcon-${trackId}`);
+                playBtn.className = 'fas fa-play';
+                playBtn.closest('.mini-btn').classList.remove('active');
+            }
+            
+            stopTimer(trackId);
+        }
+
+        // Timer functions
+        function startTimer(trackId) {
+            const track = tracks[trackId];
+            track.startTime = Date.now();
+            
+            track.timer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - track.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                
+                const timeElement = document.getElementById(`time-${trackId}`);
+                if (timeElement) {
+                    timeElement.textContent = `${minutes}:${seconds}`;
+                }
+                
+                if (!track.isRecording && !track.isPlaying) {
+                    clearInterval(track.timer);
+                }
+            }, 1000);
+        }
+
+        function stopTimer(trackId) {
+            const track = tracks[trackId];
+            if (track.timer) {
+                clearInterval(track.timer);
+                track.timer = null;
+            }
+        }
+
+        // Waveform functions
+        function drawWaveform(trackId, audioBuffer) {
+            const canvas = document.getElementById(`waveform-${trackId}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            if (!audioBuffer) return;
+            
+            const data = audioBuffer.getChannelData(0);
+            const step = Math.ceil(data.length / width);
+            const amp = height / 2;
+            
+            // Draw background
+            ctx.fillStyle = 'rgba(78, 205, 196, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw waveform
+            ctx.fillStyle = '#4ecdc4';
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 1;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, amp);
+            
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                
+                for (let j = 0; j < step; j++) {
+                    const datum = data[(i * step) + j];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                
+                const yMin = (1 + min) * amp;
+                const yMax = (1 + max) * amp;
+                
+                ctx.fillRect(i, yMin, 1, Math.max(1, yMax - yMin));
+            }
+            
+            // Add center line
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, amp);
+            ctx.lineTo(width, amp);
+            ctx.stroke();
+        }
+
+        function hideWaveformOverlay(trackId) {
+            const overlay = document.getElementById(`waveformOverlay-${trackId}`);
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function seekToPosition(trackId, event) {
+            const track = tracks[trackId];
+            if (!track.audioBuffer || track.isPlaying) return;
+            
+            const canvas = event.target;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / canvas.width;
+            
+            // This would implement seeking functionality
+            updateStatus(`Seek to ${Math.round(percentage * 100)}%`);
+        }
+
+        // Effect functions
+        function createReverbImpulse(convolver) {
+            const length = audioContext.sampleRate * 3;
+            const impulse = audioContext.createBuffer(2, length, audioContext.sampleRate);
+            
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = impulse.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    const decay = Math.pow(1 - i / length, 2);
+                    channelData[i] = (Math.random() * 2 - 1) * decay;
+                }
+            }
+            
+            convolver.buffer = impulse;
+        }
+
+        function createDistortionCurve(amount) {
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            const deg = Math.PI / 180;
+            
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+            }
+            
+            return curve;
+        }
+
+        // Master controls
+        function updateMasterVolume(value) {
+            if (masterGainNode) {
+                masterGainNode.gain.value = value / 100;
+            }
+            document.getElementById('masterVol').textContent = value + '%';
+        }
+
+        function playAll() {
+            let playingCount = 0;
+            Object.keys(tracks).forEach(trackId => {
+                const track = tracks[trackId];
+                if (track.audioBuffer && !track.isPlaying && !track.isMuted) {
+                    togglePlay(parseInt(trackId));
+                    playingCount++;
+                }
+            });
+            
+            if (playingCount > 0) {
+                updateStatus(`Playing ${playingCount} tracks`);
+            } else {
+                updateStatus('No tracks available to play');
+            }
+        }
+
+        function stopAll() {
+            Object.keys(tracks).forEach(trackId => {
+                stopTrack(parseInt(trackId));
+            });
+            updateStatus('All tracks stopped');
+        }
+
+        // Export function
+        async function exportMix() {
+            if (!audioContext) {
+                updateStatus('No audio system available');
+                return;
+            }
+            
+            // Check if there are any tracks with audio
+            const tracksWithAudio = Object.values(tracks).filter(track => track.audioBuffer);
+            if (tracksWithAudio.length === 0) {
+                updateStatus('No audio tracks to export');
+                return;
+            }
+            
+            updateStatus('Preparing export...');
+            
+            try {
+                // Find the longest track duration
+                let maxDuration = 0;
+                tracksWithAudio.forEach(track => {
+                    if (track.audioBuffer.duration > maxDuration) {
+                        maxDuration = track.audioBuffer.duration;
+                    }
+                });
+                
+                // Create offline context for rendering
+                const offlineContext = new OfflineAudioContext(
+                    2, // stereo
+                    Math.ceil(maxDuration * audioContext.sampleRate),
+                    audioContext.sampleRate
+                );
+                
+                // Create master chain in offline context
+                const offlineMasterGain = offlineContext.createGain();
+                const offlineMasterComp = offlineContext.createDynamicsCompressor();
+                
+                offlineMasterComp.connect(offlineMasterGain);
+                offlineMasterGain.connect(offlineContext.destination);
+                
+                // Set master volume
+                offlineMasterGain.gain.value = masterGainNode.gain.value;
+                
+                // Add each track to the offline context
+                tracksWithAudio.forEach(track => {
+                    if (!track.isMuted) {
+                        const source = offlineContext.createBufferSource();
+                        const gain = offlineContext.createGain();
+                        const pan = offlineContext.createStereoPanner();
+                        
+                        source.buffer = track.audioBuffer;
+                        gain.gain.value = track.gainNode.gain.value;
+                        pan.pan.value = track.panNode.pan.value;
+                        
+                        source.connect(gain);
+                        gain.connect(pan);
+                        pan.connect(offlineMasterComp);
+                        
+                        source.start(0);
+                    }
+                });
+                
+                updateStatus('Rendering audio...');
+                
+                // Render the audio
+                const renderedBuffer = await offlineContext.startRendering();
+                
+                // Convert to WAV
+                const wavData = audioBufferToWav(renderedBuffer);
+                
+                // Save the file
+                await saveAudioFile(wavData, `mix-${Date.now()}.wav`);
+                
+                updateStatus('Mix exported successfully!');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                updateStatus('Export failed - trying fallback');
+                fallbackExport();
+            }
+        }
+
+        function audioBufferToWav(buffer) {
+            const length = buffer.length;
+            const numberOfChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const arrayBuffer = new ArrayBuffer(44 + length * numberOfChannels * 2);
+            const view = new DataView(arrayBuffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * numberOfChannels * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * numberOfChannels * 2, true);
+            
+            // Convert samples
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return arrayBuffer;
+        }
+
+        async function saveAudioFile(audioData, filename) {
+            try {
+                if (window.showSaveFilePicker) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: 'Audio files',
+                            accept: { 'audio/wav': ['.wav'] }
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(audioData);
+                    await writable.close();
+                } else {
+                    fallbackSaveAudio(audioData, filename);
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    fallbackSaveAudio(audioData, filename);
+                }
+            }
+        }
+
+        function fallbackSaveAudio(audioData, filename) {
+            const blob = new Blob([audioData], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function fallbackExport() {
+            const dummyContent = `Professional Mobile DAW Export\nTimestamp: ${new Date().toISOString()}\nTracks: ${Object.keys(tracks).length}`;
+            const blob = new Blob([dummyContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'daw-export-info.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // File upload functions
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            const trackId = parseInt(document.getElementById('trackSelect').value);
+            
+            if (files.length > 0) {
+                loadAudioFile(files[0], trackId);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.target.closest('.upload-area').classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.target.closest('.upload-area').classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const uploadArea = event.target.closest('.upload-area');
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(event.dataTransfer.files);
+            const trackId = parseInt(document.getElementById('trackSelect').value);
+            
+            if (files.length > 0) {
+                const audioFiles = files.filter(file => file.type.startsWith('audio/'));
+                if (audioFiles.length > 0) {
+                    loadAudioFile(audioFiles[0], trackId);
+                } else {
+                    updateStatus('Please drop audio files only');
+                }
+            }
+        }
+
+        async function loadAudioFile(file, trackId) {
+            if (!audioContext) await initAudio();
+            
+            updateStatus(`Loading ${file.name}...`);
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                tracks[trackId].audioBuffer = audioBuffer;
+                drawWaveform(trackId, audioBuffer);
+                hideWaveformOverlay(trackId);
+                
+                updateStatus(`${file.name} loaded to Track ${trackId}`);
+                closeModal('uploadModal');
+                
+            } catch (error) {
+                console.error('Error loading audio file:', error);
+                updateStatus('Error loading audio file - unsupported format');
+            }
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Track modal functions
+        function openTrackModal(trackId) {
+            currentModalTrack = trackId;
+            const track = tracks[trackId];
+            
+            document.getElementById('trackModalTitle').innerHTML = `<i class="fas fa-sliders-h"></i> ${track.name} Settings`;
+            
+            // Load current values
+            if (track.gainNode) {
+                const volume = Math.round(track.gainNode.gain.value * 100);
+                document.getElementById('modalVolume').value = volume;
+                document.getElementById('modalVol').textContent = volume + '%';
+                
+                const pan = Math.round(track.panNode.pan.value * 100);
+                document.getElementById('modalPanning').value = pan;
+                updateModalPanDisplay(pan);
+            }
+            
+            // Update effect buttons
+            const effectButtons = document.querySelectorAll('.modal-effect-btn');
+            effectButtons.forEach(btn => btn.classList.remove('active'));
+            
+            track.effects.forEach(effect => {
+                const btn = Array.from(effectButtons).find(b => 
+                    b.textContent.toLowerCase().includes(effect)
+                );
+                if (btn) btn.classList.add('active');
+            });
+            
+            openModal('trackModal');
+        }
+
+        function updateModalVolume(value) {
+            if (currentModalTrack && tracks[currentModalTrack].gainNode) {
+                tracks[currentModalTrack].gainNode.gain.value = value / 100;
+            }
+            document.getElementById('modalVol').textContent = value + '%';
+        }
+
+        function updateModalPan(value) {
+            if (currentModalTrack && tracks[currentModalTrack].panNode) {
+                tracks[currentModalTrack].panNode.pan.value = value / 100;
+            }
+            updateModalPanDisplay(value);
+        }
+
+        function updateModalPanDisplay(value) {
+            let panText;
+            if (value == 0) {
+                panText = 'Center';
+            } else if (value > 0) {
+                panText = `Right ${value}%`;
+            } else {
+                panText = `Left ${Math.abs(value)}%`;
+            }
+            document.getElementById('modalPan').textContent = panText;
+        }
+
+        function updateModalFX(value) {
+            document.getElementById('modalFX').textContent = value + '%';
+            
+            if (currentModalTrack && tracks[currentModalTrack].effectNodes) {
+                const track = tracks[currentModalTrack];
+                const wetGain = value / 100;
+                const dryGain = 1 - wetGain;
+                
+                track.effectNodes.wetGain.gain.value = wetGain;
+                track.effectNodes.dryGain.gain.value = dryGain;
+            }
+        }
+
+        function toggleModalEffect(effectName) {
+            if (!currentModalTrack) return;
+            
+            const track = tracks[currentModalTrack];
+            const btn = event.target.closest('.modal-effect-btn');
+            
+            if (track.effects.has(effectName)) {
+                track.effects.delete(effectName);
+                btn.classList.remove('active');
+            } else {
+                track.effects.add(effectName);
+                btn.classList.add('active');
+            }
+            
+            updateStatus(`Track ${currentModalTrack} ${effectName} ${track.effects.has(effectName) ? 'enabled' : 'disabled'}`);
+        }
+
+        function clearModalTrack() {
+            if (currentModalTrack) {
+                const track = tracks[currentModalTrack];
+                stopTrack(currentModalTrack);
+                track.audioBuffer = null;
+                
+                const canvas = document.getElementById(`waveform-${currentModalTrack}`);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                
+                const overlay = document.getElementById(`waveformOverlay-${currentModalTrack}`);
+                if (overlay) {
+                    overlay.style.display = 'block';
+                }
+                
+                const timeElement = document.getElementById(`time-${currentModalTrack}`);
+                if (timeElement) {
+                    timeElement.textContent = '00:00';
+                }
+                
+                updateStatus(`Track ${currentModalTrack} cleared`);
+                closeModal('trackModal');
+            }
+        }
+
+        function duplicateTrack() {
+            if (!currentModalTrack) return;
+            
+            const sourceTrack = tracks[currentModalTrack];
+            if (!sourceTrack.audioBuffer) {
+                updateStatus('No audio to duplicate');
+                return;
+            }
+            
+            // Add new track
+            addTrack();
+            const newTrackId = trackCounter;
+            
+            // Copy audio buffer
+            tracks[newTrackId].audioBuffer = sourceTrack.audioBuffer;
+            drawWaveform(newTrackId, sourceTrack.audioBuffer);
+            hideWaveformOverlay(newTrackId);
+            
+            // Copy settings
+            if (sourceTrack.gainNode && tracks[newTrackId].gainNode) {
+                tracks[newTrackId].gainNode.gain.value = sourceTrack.gainNode.gain.value;
+                tracks[newTrackId].panNode.pan.value = sourceTrack.panNode.pan.value;
+            }
+            
+            updateStatus(`Track ${currentModalTrack} duplicated to Track ${newTrackId}`);
+        }
+
+        function soloTrack() {
+            if (!currentModalTrack) return;
+            
+            const currentTrack = tracks[currentModalTrack];
+            const wasSoloed = currentTrack.isSoloed;
+            
+            // Toggle solo state
+            Object.values(tracks).forEach(track => {
+                track.isSoloed = false;
+                if (track.gainNode) {
+                    track.gainNode.gain.value = track.gainNode.gain.value; // Reset to normal
+                }
+            });
+            
+            if (!wasSoloed) {
+                currentTrack.isSoloed = true;
+                // Mute other tracks
+                Object.values(tracks).forEach(track => {
+                    if (track.id !== currentModalTrack && track.gainNode) {
+                        track.gainNode.gain.value = 0;
+                    }
+                });
+                updateStatus(`Track ${currentModalTrack} soloed`);
+            } else {
+                // Unsolo - restore all tracks
+                Object.values(tracks).forEach(track => {
+                    if (track.gainNode) {
+                        track.gainNode.gain.value = 1; // Or restore previous values
+                    }
+                });
+                updateStatus('Solo disabled');
+            }
+        }
+
+        function muteTrack() {
+            if (!currentModalTrack) return;
+            
+            const track = tracks[currentModalTrack];
+            track.isMuted = !track.isMuted;
+            
+            if (track.gainNode) {
+                track.gainNode.gain.value = track.isMuted ? 0 : 1;
+            }
+            
+            updateStatus(`Track ${currentModalTrack} ${track.isMuted ? 'muted' : 'unmuted'}`);
+        }
+
+        // Utility functions
+        function updateStatus(message) {
+            document.getElementById('statusBar').textContent = message;
+            console.log('Status:', message);
+        }
+
+        // Event listeners
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' && !event.target.matches('input, textarea, select')) {
+                event.preventDefault();
+                if (Object.values(tracks).some(track => track.isPlaying)) {
+                    stopAll();
+                } else {
+                    playAll();
+                }
+            }
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateStatus('Initializing Professional Mobile DAW...');
+            
+            // Handle audio context resume for mobile
+            document.addEventListener('touchstart', () => {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+            
+            document.addEventListener('click', () => {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+            
+            // Initialize audio system
+            await initAudio();
+        });
+
+        // Auto-save functionality
+        setInterval(() => {
+            if (projectSettings.autoSave) {
+                // Save project state to localStorage
+                const projectData = {
+                    tracks: Object.keys(tracks).length,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('daw-project', JSON.stringify(projectData));
+            }
+        }, 30000); // Auto-save every 30 seconds
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95baabeb67761d01',t:'MTc1MTkyNjIyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+

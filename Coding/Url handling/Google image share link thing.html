@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Image Sharer</title>
+<style>
+body {font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px;}
+input, button {padding: 10px; margin: 5px; width: 320px;}
+</style>
+</head>
+<body>
+<h2>downloads an html file where you can share the image from</h2>
+<input type="text" id="imageUrl" placeholder="Enter Google image share link">
+<button id="shareBtn">Share Image</button>
+
+
+<script>
+const corsProxy = "https://cloudflare-cors-anywhere.imnotfamous01.workers.dev/?";
+
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  const inputUrl = document.getElementById('imageUrl').value.trim();
+  if (!inputUrl) {
+    alert('Please enter a valid Google image link.');
+    return;
+  }
+
+
+  const proxiedUrl = corsProxy + inputUrl;
+
+
+  try {
+    const response = await fetch(proxiedUrl);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const blob = await response.blob();
+    const file = new File([blob], 'shared_image.jpg', { type: blob.type });
+
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: 'Shared Image',
+        text: 'Check out this image!',
+        files: [file]
+      });
+    } else {
+      alert('Web Share API with files is not supported on this device or browser.');
+    }
+  } catch (error) {
+    alert('Failed to share image. The link may not be valid or accessible.');
+  }
+});
+</script>
+</body>
+</html>

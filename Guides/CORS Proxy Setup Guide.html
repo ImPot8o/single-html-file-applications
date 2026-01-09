@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORS Proxy Setup Guide</title>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    .code-block {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #2563eb;
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
+  <div class="w-full h-full overflow-auto">
+   <div class="max-w-5xl mx-auto px-6 py-12"><!-- Header -->
+    <header class="text-center mb-12">
+     <div class="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-full text-sm font-bold mb-4 shadow-lg">
+      🛡️ CLOUDFLARE WORKERS GUIDE
+     </div>
+     <h1 id="main-title" class="text-5xl font-bold text-gray-900 mb-4">Create a CORS Anywhere Proxy</h1>
+     <p id="subtitle" class="text-xl text-gray-700 max-w-3xl mx-auto">Build your own CORS proxy using Cloudflare Workers - No credit card required!</p>
+    </header><!-- Introduction -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border-t-4 border-purple-500">
+     <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3"><span class="text-3xl">📖</span> What You'll Learn</h2>
+     <p id="intro-text" class="text-gray-700 text-lg leading-relaxed">This guide will help you create a free CORS proxy using Cloudflare Workers. CORS proxies help you make API requests from your browser that would normally be blocked by CORS policies. Perfect for bypassing API restrictions in development!</p>
+    </div><!-- Steps Container -->
+    <div class="space-y-8"><!-- Step 1 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-blue-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        1
+       </div>
+       <div class="flex-1">
+        <h2 id="step1-title" class="text-3xl font-bold text-gray-800 mb-3">Access Cloudflare Workers</h2>
+        <p id="step1-description" class="text-gray-700 text-lg leading-relaxed mb-4">Log into your Cloudflare account at cloudflare.com. From the main dashboard, click on "Workers &amp; Pages" in the left sidebar. Then click the blue "Create Application" button, and select "Create Worker".</p>
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+         <p class="text-blue-900 font-medium">💡 <strong>Free Tier:</strong> Cloudflare offers 100,000 requests per day for free!</p>
+        </div>
+       </div>
+      </div>
+     </article><!-- Step 2 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-green-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        2
+       </div>
+       <div class="flex-1">
+        <h2 id="step2-title" class="text-3xl font-bold text-gray-800 mb-3">Name Your Worker</h2>
+        <p id="step2-description" class="text-gray-700 text-lg leading-relaxed mb-4">Give your worker a descriptive name like "cors-proxy" or "api-proxy". This will become part of your worker's URL. Click "Deploy" to create the worker with the default starter code (we'll replace it in the next step).</p>
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
+         <p class="text-green-900 font-medium">🎯 <strong>Naming Tip:</strong> Choose a name you'll remember - it can't be changed later!</p>
+        </div>
+       </div>
+      </div>
+     </article><!-- Step 3 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-purple-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        3
+       </div>
+       <div class="flex-1">
+        <h2 id="step3-title" class="text-3xl font-bold text-gray-800 mb-3">Edit the Worker Code</h2>
+        <p id="step3-description" class="text-gray-700 text-lg leading-relaxed mb-4">After deployment, click "Edit Code" button. This opens the code editor. Delete all the existing code and paste in the CORS proxy code shown below. This code will intercept requests and add the necessary CORS headers.</p>
+        <div class="relative">
+         <div class="code-block"><button class="copy-btn" onclick="copyCode(this, 'code1')">Copy</button>
+          <pre id="code1">/*
+CORS Anywhere as a Cloudflare Worker!
+(c) 2019 by Zibri (www.zibri.org)
+email: zibri AT zibri DOT org
+https://github.com/Zibri/cloudflare-cors-anywhere
+
+This Cloudflare Worker script acts as a CORS proxy that allows
+cross-origin resource sharing for specified origins and URLs.
+It handles OPTIONS preflight requests and modifies response headers accordingly to enable CORS.
+The script also includes functionality to parse custom headers and provide detailed information
+about the CORS proxy service when accessed without specific parameters.
+The script is configurable with whitelist and blacklist patterns, although the blacklist feature is currently unused.
+The main goal is to facilitate cross-origin requests while enforcing specific security and rate-limiting policies.
+*/
+
+// Configuration: Whitelist and Blacklist (not used in this version)
+// whitelist = [ "^http.?://www.zibri.org$", "zibri.org$", "test\\..*" ];  // regexp for whitelisted urls
+const blacklistUrls = [];           // regexp for blacklisted urls
+const whitelistOrigins = [ ".*" ];   // regexp for whitelisted origins
+
+// Function to check if a given URI or origin is listed in the whitelist or blacklist
+function isListedInWhitelist(uri, listing) {
+    let isListed = false;
+    if (typeof uri === "string") {
+        listing.forEach((pattern) => {
+            if (uri.match(pattern) !== null) {
+                isListed = true;
+            }
+        });
+    } else {
+        // When URI is null (e.g., when Origin header is missing), decide based on the implementation
+        isListed = true; // true accepts null origins, false would reject them
+    }
+    return isListed;
+}
+
+// Event listener for incoming fetch requests
+addEventListener("fetch", async event => {
+    event.respondWith((async function() {
+        const isPreflightRequest = (event.request.method === "OPTIONS");
+        
+        const originUrl = new URL(event.request.url);
+
+        // Function to modify headers to enable CORS
+        function setupCORSHeaders(headers) {
+            headers.set("Access-Control-Allow-Origin", event.request.headers.get("Origin"));
+            if (isPreflightRequest) {
+                headers.set("Access-Control-Allow-Methods", event.request.headers.get("access-control-request-method"));
+                const requestedHeaders = event.request.headers.get("access-control-request-headers");
+
+                if (requestedHeaders) {
+                    headers.set("Access-Control-Allow-Headers", requestedHeaders);
+                }
+
+                headers.delete("X-Content-Type-Options"); // Remove X-Content-Type-Options header
+            }
+            return headers;
+        }
+
+        const targetUrl = decodeURIComponent(decodeURIComponent(originUrl.search.substr(1)));
+
+        const originHeader = event.request.headers.get("Origin");
+        const connectingIp = event.request.headers.get("CF-Connecting-IP");
+
+        if ((!isListedInWhitelist(targetUrl, blacklistUrls)) && (isListedInWhitelist(originHeader, whitelistOrigins))) {
+            let customHeaders = event.request.headers.get("x-cors-headers");
+
+            if (customHeaders !== null) {
+                try {
+                    customHeaders = JSON.parse(customHeaders);
+                } catch (e) {}
+            }
+
+            if (originUrl.search.startsWith("?")) {
+                let filteredHeaders = {};
+                for (const [key, value] of event.request.headers.entries()) {
+                    if (
+                        (key.match("^origin") === null) &&
+                        (key.match("eferer") === null) &&
+                        (key.match("^cf-") === null) &&
+                        (key.match("^x-forw") === null) &&
+                        (key.match("^x-cors-headers") === null)
+                    ) {
+                        filteredHeaders[key] = value;
+                    }
+                }
+
+                if (customHeaders !== null) {
+                    Object.entries(customHeaders).forEach((entry) => (filteredHeaders[entry[0]] = entry[1]));
+                }
+
+                const newRequest = new Request(event.request, {
+                    redirect: "follow",
+                    headers: filteredHeaders
+                });
+
+                const response = await fetch(targetUrl, newRequest);
+                let responseHeaders = new Headers(response.headers);
+                let exposedHeaders = [];
+                let allResponseHeaders = {};
+                for (const [key, value] of response.headers.entries()) {
+                    exposedHeaders.push(key);
+                    allResponseHeaders[key] = value;
+                }
+                exposedHeaders.push("cors-received-headers");
+                responseHeaders = setupCORSHeaders(responseHeaders);
+
+                responseHeaders.set("Access-Control-Expose-Headers", exposedHeaders.join(","));
+                responseHeaders.set("cors-received-headers", JSON.stringify(allResponseHeaders));
+
+                const responseBody = isPreflightRequest ? null : await response.arrayBuffer();
+
+                const responseInit = {
+                    headers: responseHeaders,
+                    status: isPreflightRequest ? 200 : response.status,
+                    statusText: isPreflightRequest ? "OK" : response.statusText
+                };
+                return new Response(responseBody, responseInit);
+
+            } else {
+                let responseHeaders = new Headers();
+                responseHeaders = setupCORSHeaders(responseHeaders);
+
+                let country = false;
+                let colo = false;
+                if (typeof event.request.cf !== "undefined") {
+                    country = event.request.cf.country || false;
+                    colo = event.request.cf.colo || false;
+                }
+
+                return new Response(
+                    "CLOUDFLARE-CORS-ANYWHERE\n\n" +
+                    "Source:\nhttps://github.com/Zibri/cloudflare-cors-anywhere\n\n" +
+                    "Usage:\n" +
+                    originUrl.origin + "/?uri\n\n" +
+                    "Donate:\nhttps://paypal.me/Zibri/5\n\n" +
+                    "Limits: 100,000 requests/day\n" +
+                    "          1,000 requests/10 minutes\n\n" +
+                    (originHeader !== null ? "Origin: " + originHeader + "\n" : "") +
+                    "IP: " + connectingIp + "\n" +
+                    (country ? "Country: " + country + "\n" : "") +
+                    (colo ? "Datacenter: " + colo + "\n" : "") +
+                    "\n" +
+                    (customHeaders !== null ? "\nx-cors-headers: " + JSON.stringify(customHeaders) : ""),
+                    {
+                        status: 200,
+                        headers: responseHeaders
+                    }
+                );
+            }
+        } else {
+            return new Response(
+                "Create your own CORS proxy&lt/br>\n" +
+                "&lta href='https://github.com/Zibri/cloudflare-cors-anywhere'>https://github.com/Zibri/cloudflare-cors-anywhere&lt/a>&lt/br>\n" +
+                "\nDonate&lt/br>\n" +
+                "&lta href='https://paypal.me/Zibri/5'>https://paypal.me/Zibri/5&lt/a>\n",
+                {
+                    status: 403,
+                    statusText: 'Forbidden',
+                    headers: {
+                        "Content-Type": "text/html"
+                    }
+                }
+            );
+        }
+    })());
+});</pre>
+         </div>
+        </div>
+        <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-lg mt-4">
+         <p class="text-purple-900 font-medium">⚙️ <strong>What this does:</strong> Fetches any URL and adds CORS headers to allow browser access</p>
+        </div>
+       </div>
+      </div>
+     </article><!-- Step 4 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-orange-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        4
+       </div>
+       <div class="flex-1">
+        <h2 id="step4-title" class="text-3xl font-bold text-gray-800 mb-3">Deploy Your Changes</h2>
+        <p id="step4-description" class="text-gray-700 text-lg leading-relaxed mb-4">After pasting the code, click the "Deploy" button in the top right corner of the editor. Wait a few seconds for the deployment to complete. You'll see a success message when it's live.</p>
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
+         <p class="text-orange-900 font-medium">⚡ <strong>Speed:</strong> Your worker deploys globally in seconds!</p>
+        </div>
+       </div>
+      </div>
+     </article><!-- Step 5 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-pink-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        5
+       </div>
+       <div class="flex-1">
+        <h2 id="step5-title" class="text-3xl font-bold text-gray-800 mb-3">Get Your Worker URL</h2>
+        <p id="step5-description" class="text-gray-700 text-lg leading-relaxed mb-4">Go back to the Workers dashboard. You'll see your worker listed with its URL (something like "cors-proxy.your-subdomain.workers.dev"). Click the copy icon next to the URL to save it. This is your proxy endpoint!</p>
+        <div class="bg-pink-50 border-l-4 border-pink-400 p-4 rounded-lg">
+         <p class="text-pink-900 font-medium">📋 <strong>Save it:</strong> You'll use this URL in your code to make proxied requests</p>
+        </div>
+       </div>
+      </div>
+     </article><!-- Step 6 -->
+     <article class="bg-white rounded-2xl shadow-lg p-8 border-l-8 border-indigo-500 hover:shadow-2xl transition-shadow">
+      <div class="flex items-start gap-6">
+       <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        6
+       </div>
+       <div class="flex-1">
+        <h2 id="step6-title" class="text-3xl font-bold text-gray-800 mb-3">Use Your Proxy</h2>
+        <p id="step6-description" class="text-gray-700 text-lg leading-relaxed mb-4">To use your proxy, add "?url=" followed by the URL you want to fetch. For example: your-worker.workers.dev?url=https://api.example.com/data. You can now make requests from your browser without CORS issues!</p>
+        <div class="relative">
+         <div class="code-block"><button class="copy-btn" onclick="copyCode(this, 'code2')">Copy</button>
+          <pre id="code2">// Example usage in JavaScript
+const proxyUrl = 'https://your-worker.workers.dev';
+const targetUrl = 'https://api.example.com/data';
+
+fetch(`${proxyUrl}?url=${encodeURIComponent(targetUrl)}`)
+  .then(response =&gt; response.json())
+  .then(data =&gt; console.log(data))
+  .catch(error =&gt; console.error('Error:', error));</pre>
+         </div>
+        </div>
+        <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded-lg mt-4">
+         <p class="text-indigo-900 font-medium">✅ <strong>Success!</strong> You can now bypass CORS restrictions in your projects</p>
+        </div>
+       </div>
+      </div>
+     </article>
+    </div><!-- Footer -->
+    <footer class="mt-12">
+     <div class="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-2xl p-8 shadow-2xl mb-6">
+      <p id="footer-text" class="text-xl font-bold text-center">🎉 Congratulations! Your CORS proxy is live and ready to use!</p>
+     </div>
+     <div class="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-6">
+      <h3 class="text-lg font-bold text-yellow-900 mb-2 flex items-center gap-2"><span class="text-2xl">⚠️</span> Important Security Note</h3>
+      <p class="text-yellow-900">This proxy is publicly accessible. For production use, add authentication or restrict allowed domains in the code. Never expose sensitive APIs through a public proxy!</p>
+     </div>
+     <p class="mt-6 text-center text-gray-600 text-sm">Need help? Visit <a href="https://developers.cloudflare.com/workers/" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:underline font-semibold">Cloudflare Workers Docs</a></p>
+    </footer>
+   </div>
+  </div>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function copyCode(button, codeId) {
+      const code = `
+/*
+CORS Anywhere as a Cloudflare Worker!
+(c) 2019 by Zibri (www.zibri.org)
+email: zibri AT zibri DOT org
+https://github.com/Zibri/cloudflare-cors-anywhere
+
+
+This Cloudflare Worker script acts as a CORS proxy that allows
+cross-origin resource sharing for specified origins and URLs.
+It handles OPTIONS preflight requests and modifies response headers accordingly to enable CORS.
+The script also includes functionality to parse custom headers and provide detailed information
+about the CORS proxy service when accessed without specific parameters.
+The script is configurable with whitelist and blacklist patterns, although the blacklist feature is currently unused.
+The main goal is to facilitate cross-origin requests while enforcing specific security and rate-limiting policies.
+*/
+
+
+// Configuration: Whitelist and Blacklist (not used in this version)
+// whitelist = [ "^http.?://www.zibri.org$", "zibri.org$", "test\\..*" ];  // regexp for whitelisted urls
+const blacklistUrls = [];           // regexp for blacklisted urls
+const whitelistOrigins = [ ".*" ];   // regexp for whitelisted origins
+
+
+// Function to check if a given URI or origin is listed in the whitelist or blacklist
+function isListedInWhitelist(uri, listing) {
+    let isListed = false;
+    if (typeof uri === "string") {
+        listing.forEach((pattern) => {
+            if (uri.match(pattern) !== null) {
+                isListed = true;
+            }
+        });
+    } else {
+        // When URI is null (e.g., when Origin header is missing), decide based on the implementation
+        isListed = true; // true accepts null origins, false would reject them
+    }
+    return isListed;
+}
+
+
+// Event listener for incoming fetch requests
+addEventListener("fetch", async event => {
+    event.respondWith((async function() {
+        const isPreflightRequest = (event.request.method === "OPTIONS");
+        
+        const originUrl = new URL(event.request.url);
+
+
+        // Function to modify headers to enable CORS
+        function setupCORSHeaders(headers) {
+            headers.set("Access-Control-Allow-Origin", event.request.headers.get("Origin"));
+            if (isPreflightRequest) {
+                headers.set("Access-Control-Allow-Methods", event.request.headers.get("access-control-request-method"));
+                const requestedHeaders = event.request.headers.get("access-control-request-headers");
+
+
+                if (requestedHeaders) {
+                    headers.set("Access-Control-Allow-Headers", requestedHeaders);
+                }
+
+
+                headers.delete("X-Content-Type-Options"); // Remove X-Content-Type-Options header
+            }
+            return headers;
+        }
+
+
+        const targetUrl = decodeURIComponent(decodeURIComponent(originUrl.search.substr(1)));
+
+
+        const originHeader = event.request.headers.get("Origin");
+        const connectingIp = event.request.headers.get("CF-Connecting-IP");
+
+
+        if ((!isListedInWhitelist(targetUrl, blacklistUrls)) && (isListedInWhitelist(originHeader, whitelistOrigins))) {
+            let customHeaders = event.request.headers.get("x-cors-headers");
+
+
+            if (customHeaders !== null) {
+                try {
+                    customHeaders = JSON.parse(customHeaders);
+                } catch (e) {}
+            }
+
+
+            if (originUrl.search.startsWith("?")) {
+                let filteredHeaders = {};
+                for (const [key, value] of event.request.headers.entries()) {
+                    if (
+                        (key.match("^origin") === null) &&
+                        (key.match("eferer") === null) &&
+                        (key.match("^cf-") === null) &&
+                        (key.match("^x-forw") === null) &&
+                        (key.match("^x-cors-headers") === null)
+                    ) {
+                        filteredHeaders[key] = value;
+                    }
+                }
+
+
+                if (customHeaders !== null) {
+                    Object.entries(customHeaders).forEach((entry) => (filteredHeaders[entry[0]] = entry[1]));
+                }
+
+
+                const newRequest = new Request(event.request, {
+                    redirect: "follow",
+                    headers: filteredHeaders
+                });
+
+
+                const response = await fetch(targetUrl, newRequest);
+                let responseHeaders = new Headers(response.headers);
+                let exposedHeaders = [];
+                let allResponseHeaders = {};
+                for (const [key, value] of response.headers.entries()) {
+                    exposedHeaders.push(key);
+                    allResponseHeaders[key] = value;
+                }
+                exposedHeaders.push("cors-received-headers");
+                responseHeaders = setupCORSHeaders(responseHeaders);
+
+
+                responseHeaders.set("Access-Control-Expose-Headers", exposedHeaders.join(","));
+                responseHeaders.set("cors-received-headers", JSON.stringify(allResponseHeaders));
+
+
+                const responseBody = isPreflightRequest ? null : await response.arrayBuffer();
+
+
+                const responseInit = {
+                    headers: responseHeaders,
+                    status: isPreflightRequest ? 200 : response.status,
+                    statusText: isPreflightRequest ? "OK" : response.statusText
+                };
+                return new Response(responseBody, responseInit);
+
+
+            } else {
+                let responseHeaders = new Headers();
+                responseHeaders = setupCORSHeaders(responseHeaders);
+
+
+                let country = false;
+                let colo = false;
+                if (typeof event.request.cf !== "undefined") {
+                    country = event.request.cf.country || false;
+                    colo = event.request.cf.colo || false;
+                }
+
+
+                return new Response(
+                    "CLOUDFLARE-CORS-ANYWHERE\n\n" +
+                    "Source:\nhttps://github.com/Zibri/cloudflare-cors-anywhere\n\n" +
+                    "Usage:\n" +
+                    originUrl.origin + "/?uri\n\n" +
+                    "Donate:\nhttps://paypal.me/Zibri/5\n\n" +
+                    "Limits: 100,000 requests/day\n" +
+                    "          1,000 requests/10 minutes\n\n" +
+                    (originHeader !== null ? "Origin: " + originHeader + "\n" : "") +
+                    "IP: " + connectingIp + "\n" +
+                    (country ? "Country: " + country + "\n" : "") +
+                    (colo ? "Datacenter: " + colo + "\n" : "") +
+                    "\n" +
+                    (customHeaders !== null ? "\nx-cors-headers: " + JSON.stringify(customHeaders) : ""),
+                    {
+                        status: 200,
+                        headers: responseHeaders
+                    }
+                );
+            }
+        } else {
+            return new Response(
+                "Create your own CORS proxy</br>\n" +
+                "<a href='https://github.com/Zibri/cloudflare-cors-anywhere'>https://github.com/Zibri/cloudflare-cors-anywhere</a></br>\n" +
+                "\nDonate</br>\n" +
+                "<a href='https://paypal.me/Zibri/5'>https://paypal.me/Zibri/5</a>\n",
+                {
+                    status: 403,
+                    statusText: 'Forbidden',
+                    headers: {
+                        "Content-Type": "text/html"
+                    }
+                }
+            );
+        }
+    })());
+});
+`;
+      navigator.clipboard.writeText(code).then(() => {
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = 'Copy';
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    const defaultConfig = {
+      main_title: "Create a CORS Anywhere Proxy",
+      subtitle: "Build your own CORS proxy using Cloudflare Workers - No credit card required!",
+      intro_text: "This guide will help you create a free CORS proxy using Cloudflare Workers. CORS proxies help you make API requests from your browser that would normally be blocked by CORS policies. Perfect for bypassing API restrictions in development!",
+      step1_title: "Access Cloudflare Workers",
+      step1_description: "Log into your Cloudflare account at cloudflare.com. From the main dashboard, click on \"Workers & Pages\" in the left sidebar. Then click the blue \"Create Application\" button, and select \"Create Worker\".",
+      step2_title: "Name Your Worker",
+      step2_description: "Give your worker a descriptive name like \"cors-proxy\" or \"api-proxy\". This will become part of your worker's URL. Click \"Deploy\" to create the worker with the default starter code (we'll replace it in the next step).",
+      step3_title: "Edit the Worker Code",
+      step3_description: "After deployment, click \"Edit Code\" button. This opens the code editor. Delete all the existing code and paste in the CORS proxy code shown below. This code will intercept requests and add the necessary CORS headers.",
+      step4_title: "Deploy Your Changes",
+      step4_description: "After pasting the code, click the \"Deploy\" button in the top right corner of the editor. Wait a few seconds for the deployment to complete. You'll see a success message when it's live.",
+      step5_title: "Get Your Worker URL",
+      step5_description: "Go back to the Workers dashboard. You'll see your worker listed with its URL (something like \"cors-proxy.your-subdomain.workers.dev\"). Click the copy icon next to the URL to save it. This is your proxy endpoint!",
+      step6_title: "Use Your Proxy",
+      step6_description: "To use your proxy, add \"?url=\" followed by the URL you want to fetch. For example: your-worker.workers.dev?url=https://api.example.com/data. You can now make requests from your browser without CORS issues!",
+      footer_text: "🎉 Congratulations! Your CORS proxy is live and ready to use!"
+    };
+
+    async function onConfigChange(config) {
+      document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+      document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+      document.getElementById('intro-text').textContent = config.intro_text || defaultConfig.intro_text;
+      document.getElementById('step1-title').textContent = config.step1_title || defaultConfig.step1_title;
+      document.getElementById('step1-description').textContent = config.step1_description || defaultConfig.step1_description;
+      document.getElementById('step2-title').textContent = config.step2_title || defaultConfig.step2_title;
+      document.getElementById('step2-description').textContent = config.step2_description || defaultConfig.step2_description;
+      document.getElementById('step3-title').textContent = config.step3_title || defaultConfig.step3_title;
+      document.getElementById('step3-description').textContent = config.step3_description || defaultConfig.step3_description;
+      document.getElementById('step4-title').textContent = config.step4_title || defaultConfig.step4_title;
+      document.getElementById('step4-description').textContent = config.step4_description || defaultConfig.step4_description;
+      document.getElementById('step5-title').textContent = config.step5_title || defaultConfig.step5_title;
+      document.getElementById('step5-description').textContent = config.step5_description || defaultConfig.step5_description;
+      document.getElementById('step6-title').textContent = config.step6_title || defaultConfig.step6_title;
+      document.getElementById('step6-description').textContent = config.step6_description || defaultConfig.step6_description;
+      document.getElementById('footer-text').textContent = config.footer_text || defaultConfig.footer_text;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["main_title", config.main_title || defaultConfig.main_title],
+        ["subtitle", config.subtitle || defaultConfig.subtitle],
+        ["intro_text", config.intro_text || defaultConfig.intro_text],
+        ["step1_title", config.step1_title || defaultConfig.step1_title],
+        ["step1_description", config.step1_description || defaultConfig.step1_description],
+        ["step2_title", config.step2_title || defaultConfig.step2_title],
+        ["step2_description", config.step2_description || defaultConfig.step2_description],
+        ["step3_title", config.step3_title || defaultConfig.step3_title],
+        ["step3_description", config.step3_description || defaultConfig.step3_description],
+        ["step4_title", config.step4_title || defaultConfig.step4_title],
+        ["step4_description", config.step4_description || defaultConfig.step4_description],
+        ["step5_title", config.step5_title || defaultConfig.step5_title],
+        ["step5_description", config.step5_description || defaultConfig.step5_description],
+        ["step6_title", config.step6_title || defaultConfig.step6_title],
+        ["step6_description", config.step6_description || defaultConfig.step6_description],
+        ["footer_text", config.footer_text || defaultConfig.footer_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ </body>
+</html>

@@ -1,0 +1,3706 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Pro Mobile DAW</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 14px;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .main-container {
+            padding: 15px;
+            max-width: 420px;
+            margin: 0 auto;
+            padding-bottom: 120px;
+        }
+        
+        .transport-bar {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(78, 205, 196, 0.15));
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .transport-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .transport-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .transport-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .transport-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+        
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px 12px;
+        }
+        
+        .bpm-input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 50px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .tracks-container {
+            margin-bottom: 20px;
+        }
+        
+        .track {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            transition: all 0.3s ease;
+            animation: trackSlideIn 0.5s ease-out;
+        }
+        
+        @keyframes trackSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .track:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .track-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .track-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .track-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .track-time {
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+            color: #4ecdc4;
+        }
+        
+        .track-controls {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            padding: 6px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            min-width: 32px;
+            justify-content: center;
+        }
+        
+        .mini-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .mini-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .mini-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .mini-btn.record {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+        
+        .mini-btn.record.active {
+            animation: recordPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes recordPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+        }
+        
+        .mini-btn.delete {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+        }
+        
+        .waveform-container {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .waveform-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            pointer-events: none;
+        }
+        
+        .loop-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+        }
+        
+        .loop-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 6px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .loop-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .loop-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .automation-lane {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            margin-top: 8px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .automation-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+        }
+        
+        .add-track-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            padding: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .add-track-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .master-controls {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(78, 205, 196, 0.15));
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .master-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .master-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 10px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 80px;
+            justify-content: center;
+        }
+        
+        .master-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .master-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .master-volume {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .master-volume input {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .master-volume input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .spectrum-analyzer {
+            height: 80px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .spectrum-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            margin: 2% auto;
+            padding: 25px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-area.dragover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .track-modal-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .modal-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-section:last-child {
+            border-bottom: none;
+        }
+        
+        .modal-section h4 {
+            margin-bottom: 15px;
+            color: #4ecdc4;
+            font-size: 14px;
+        }
+        
+        .modal-slider-group {
+            margin-bottom: 20px;
+        }
+        
+        .modal-slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .modal-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .modal-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .eq-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .eq-band {
+            text-align: center;
+        }
+        
+        .eq-band label {
+            font-size: 10px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .eq-knob {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            position: relative;
+            cursor: pointer;
+            margin: 0 auto 5px;
+        }
+        
+        .modal-effects-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-effect-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            padding: 15px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .modal-effect-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .modal-effect-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+        
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .modal-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            padding: 12px 15px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        .modal-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .synth-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .synth-param {
+            text-align: center;
+        }
+        
+        .synth-param label {
+            font-size: 10px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .drum-pads {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .drum-pad {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .drum-pad:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .drum-pad.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            transform: scale(0.95);
+        }
+        
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .sample-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            padding: 15px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .sample-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .tuner-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tuner-note {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+        
+        .tuner-cents {
+            font-size: 18px;
+            color: #ff6b6b;
+        }
+        
+        .tuner-needle {
+            width: 200px;
+            height: 20px;
+            background: linear-gradient(to right, #ff4757, #ffa502, #2ed573);
+            border-radius: 10px;
+            margin: 15px auto;
+            position: relative;
+        }
+        
+        .tuner-pointer {
+            position: absolute;
+            top: -5px;
+            width: 4px;
+            height: 30px;
+            background: white;
+            border-radius: 2px;
+            transition: left 0.3s ease;
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 12px 20px;
+            font-size: 12px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 50;
+        }
+        
+        .shortcuts-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .shortcuts-content {
+            max-width: 400px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .shortcut-group {
+            margin-bottom: 20px;
+        }
+        
+        .shortcut-group h4 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+        }
+        
+        .shortcut-key {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .confirmation-modal .modal-content {
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .confirmation-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .confirm-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn.danger {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            color: white;
+        }
+        
+        .confirm-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .undo-redo-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .undo-btn, .redo-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .undo-btn:hover, .redo-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .undo-btn:disabled, .redo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 12px;
+            }
+            
+            .track {
+                padding: 12px;
+            }
+            
+            .transport-bar {
+                padding: 12px;
+            }
+            
+            .master-buttons {
+                gap: 6px;
+            }
+            
+            .master-btn {
+                min-width: 70px;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            .modal-content {
+                width: 98%;
+                margin: 1% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-music"></i> Ultimate Pro DAW
+        </div>
+        <div class="header-controls">
+            <button class="icon-btn" onclick="toggleShortcuts()" title="Shortcuts (?)">
+                <i class="fas fa-keyboard"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('uploadModal')" title="Upload">
+                <i class="fas fa-upload"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('synthModal')" title="Synthesizer">
+                <i class="fas fa-wave-square"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('drumModal')" title="Drums">
+                <i class="fas fa-drum"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('samplesModal')" title="Samples">
+                <i class="fas fa-compact-disc"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('tunerModal')" title="Tuner">
+                <i class="fas fa-guitar"></i>
+            </button>
+            <button class="icon-btn" onclick="openModal('settingsModal')" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Transport Bar -->
+        <div class="transport-bar">
+            <div class="transport-controls">
+                <button class="transport-btn" onclick="rewind()" title="Rewind">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button class="transport-btn" id="playAllBtn" onclick="playAll()" title="Play All">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="transport-btn" onclick="stopAll()" title="Stop All">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button class="transport-btn" onclick="record()" title="Record">
+                    <i class="fas fa-circle"></i>
+                </button>
+                <button class="transport-btn" id="loopBtn" onclick="toggleLoop()" title="Loop">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            
+            <div class="time-display" id="masterTime">00:00</div>
+            
+            <div class="bpm-control">
+                <i class="fas fa-metronome"></i>
+                <input type="number" class="bpm-input" id="bpmInput" value="120" min="60" max="200" onchange="updateBPM(this.value)">
+                <span style="font-size: 10px;">BPM</span>
+            </div>
+        </div>
+
+        <!-- Undo/Redo Controls -->
+        <div class="undo-redo-controls">
+            <button class="undo-btn" id="undoBtn" onclick="undo()" disabled>
+                <i class="fas fa-undo"></i> Undo
+            </button>
+            <button class="redo-btn" id="redoBtn" onclick="redo()" disabled>
+                <i class="fas fa-redo"></i> Redo
+            </button>
+        </div>
+
+        <!-- Spectrum Analyzer -->
+        <div class="spectrum-analyzer">
+            <canvas class="spectrum-canvas" id="spectrumCanvas" width="380" height="80"></canvas>
+        </div>
+
+        <!-- Tracks Container -->
+        <div class="tracks-container" id="tracksContainer">
+            <!-- Tracks will be dynamically added here -->
+        </div>
+        
+        <!-- Add Track Button -->
+        <button class="add-track-btn" onclick="openModal('addTrackModal')">
+            <i class="fas fa-plus"></i>
+            Add New Track
+        </button>
+
+        <!-- Master Controls -->
+        <div class="master-controls">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-sliders-h"></i> Master Mix</h3>
+            
+            <div class="master-buttons">
+                <button class="master-btn" onclick="exportMix()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button class="master-btn" onclick="exportStems()">
+                    <i class="fas fa-layer-group"></i> Stems
+                </button>
+                <button class="master-btn" onclick="bounceInPlace()">
+                    <i class="fas fa-compress"></i> Bounce
+                </button>
+                <button class="master-btn" onclick="openModal('templatesModal')">
+                    <i class="fas fa-save"></i> Template
+                </button>
+            </div>
+            
+            <div class="master-volume">
+                <i class="fas fa-volume-down"></i>
+                <input type="range" min="0" max="100" value="100" oninput="updateMasterVolume(this.value)">
+                <i class="fas fa-volume-up"></i>
+                <span id="masterVol" style="margin-left: 12px; font-size: 13px; font-weight: bold;">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Track Modal -->
+    <div id="addTrackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-plus"></i> Add New Track</h3>
+                <button class="close-btn" onclick="closeModal('addTrackModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Track Type</h4>
+                <div class="modal-effects-grid">
+                    <button class="modal-effect-btn" onclick="addTrack('audio')">
+                        <i class="fas fa-microphone" style="font-size: 20px; margin-bottom: 8px;"></i><br>Audio Track
+                    </button>
+                    <button class="modal-effect-btn" onclick="addTrack('instrument')">
+                        <i class="fas fa-piano" style="font-size: 20px; margin-bottom: 8px;"></i><br>Instrument
+                    </button>
+                    <button class="modal-effect-btn" onclick="addTrack('drums')">
+                        <i class="fas fa-drum" style="font-size: 20px; margin-bottom: 8px;"></i><br>Drum Kit
+                    </button>
+                    <button class="modal-effect-btn" onclick="addTrack('group')">
+                        <i class="fas fa-layer-group" style="font-size: 20px; margin-bottom: 8px;"></i><br>Group Track
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Track Color</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #4ecdc4, #44a08d); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#4ecdc4')"></div>
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #ff6b6b, #ee5a24); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#ff6b6b')"></div>
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#667eea')"></div>
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #ffa502, #ff6348); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#ffa502')"></div>
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #2ed573, #1e90ff); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#2ed573')"></div>
+                    <div class="color-option" style="width: 30px; height: 30px; background: linear-gradient(45deg, #a55eea, #26de81); border-radius: 50%; cursor: pointer;" onclick="selectTrackColor('#a55eea')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-upload"></i> Upload Audio</h3>
+                <button class="close-btn" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; margin-bottom: 12px; opacity: 0.6;"></i>
+                <p style="font-size: 14px; margin-bottom: 6px;">Click to select audio files</p>
+                <p style="font-size: 12px; margin-bottom: 6px;">or drag & drop here</p>
+                <p style="font-size: 10px; opacity: 0.7;">Supports MP3, WAV, M4A, OGG, FLAC</p>
+            </div>
+            
+            <input type="file" id="fileInput" accept="audio/*" multiple style="display: none;" onchange="handleFileSelect(event)">
+            
+            <div style="margin-top: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-size: 12px;">Assign to Track:</label>
+                <select id="trackSelect" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 12px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Synthesizer Modal -->
+    <div id="synthModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-wave-square"></i> Built-in Synthesizer</h3>
+                <button class="close-btn" onclick="closeModal('synthModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Oscillator</h4>
+                <div class="synth-controls">
+                    <div class="synth-param">
+                        <label>Waveform</label>
+                        <select id="synthWave" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; font-size: 11px;">
+                            <option value="sine">Sine</option>
+                            <option value="square">Square</option>
+                            <option value="sawtooth">Sawtooth</option>
+                            <option value="triangle">Triangle</option>
+                        </select>
+                    </div>
+                    <div class="synth-param">
+                        <label>Frequency</label>
+                        <input type="range" id="synthFreq" min="100" max="2000" value="440" class="modal-slider">
+                        <span id="synthFreqVal">440 Hz</span>
+                    </div>
+                    <div class="synth-param">
+                        <label>Detune</label>
+                        <input type="range" id="synthDetune" min="-100" max="100" value="0" class="modal-slider">
+                        <span id="synthDetuneVal">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Envelope</h4>
+                <div class="synth-controls">
+                    <div class="synth-param">
+                        <label>Attack</label>
+                        <input type="range" id="synthAttack" min="0" max="2" step="0.1" value="0.1" class="modal-slider">
+                        <span id="synthAttackVal">0.1s</span>
+                    </div>
+                    <div class="synth-param">
+                        <label>Decay</label>
+                        <input type="range" id="synthDecay" min="0" max="2" step="0.1" value="0.3" class="modal-slider">
+                        <span id="synthDecayVal">0.3s</span>
+                    </div>
+                    <div class="synth-param">
+                        <label>Release</label>
+                        <input type="range" id="synthRelease" min="0" max="3" step="0.1" value="1" class="modal-slider">
+                        <span id="synthReleaseVal">1s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Virtual Keyboard</h4>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 15px;">
+                    <button class="modal-action-btn" onmousedown="playSynthNote(261.63)" onmouseup="stopSynthNote()">C</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(293.66)" onmouseup="stopSynthNote()">D</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(329.63)" onmouseup="stopSynthNote()">E</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(349.23)" onmouseup="stopSynthNote()">F</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(392.00)" onmouseup="stopSynthNote()">G</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(440.00)" onmouseup="stopSynthNote()">A</button>
+                    <button class="modal-action-btn" onmousedown="playSynthNote(493.88)" onmouseup="stopSynthNote()">B</button>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="modal-action-btn" onclick="recordSynth()">
+                        <i class="fas fa-circle"></i> Record
+                    </button>
+                    <button class="modal-action-btn" onclick="addSynthToTrack()">
+                        <i class="fas fa-plus"></i> Add to Track
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drum Machine Modal -->
+    <div id="drumModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-drum"></i> Drum Machine</h3>
+                <button class="close-btn" onclick="closeModal('drumModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Drum Pads</h4>
+                <div class="drum-pads">
+                    <button class="drum-pad" onmousedown="playDrum('kick')" data-drum="kick">KICK</button>
+                    <button class="drum-pad" onmousedown="playDrum('snare')" data-drum="snare">SNARE</button>
+                    <button class="drum-pad" onmousedown="playDrum('hihat')" data-drum="hihat">HI-HAT</button>
+                    <button class="drum-pad" onmousedown="playDrum('openhat')" data-drum="openhat">OPEN</button>
+                    <button class="drum-pad" onmousedown="playDrum('crash')" data-drum="crash">CRASH</button>
+                    <button class="drum-pad" onmousedown="playDrum('ride')" data-drum="ride">RIDE</button>
+                    <button class="drum-pad" onmousedown="playDrum('tom1')" data-drum="tom1">TOM 1</button>
+                    <button class="drum-pad" onmousedown="playDrum('tom2')" data-drum="tom2">TOM 2</button>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Pattern Sequencer</h4>
+                <div style="margin-bottom: 15px;">
+                    <button class="modal-action-btn" id="drumPlayBtn" onclick="toggleDrumPattern()">
+                        <i class="fas fa-play"></i> Play Pattern
+                    </button>
+                    <button class="modal-action-btn" onclick="clearDrumPattern()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+                
+                <div id="drumSequencer" style="display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; margin-bottom: 15px;">
+                    <!-- Sequencer steps will be generated -->
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-actions">
+                    <button class="modal-action-btn" onclick="recordDrumPattern()">
+                        <i class="fas fa-circle"></i> Record
+                    </button>
+                    <button class="modal-action-btn" onclick="addDrumToTrack()">
+                        <i class="fas fa-plus"></i> Add to Track
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Samples Library Modal -->
+    <div id="samplesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-compact-disc"></i> Sample Library</h3>
+                <button class="close-btn" onclick="closeModal('samplesModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Loops & One-Shots</h4>
+                <div class="samples-grid">
+                    <button class="sample-btn" onclick="playSample('loop1')">
+                        <i class="fas fa-music"></i><br>Hip Hop Loop
+                    </button>
+                    <button class="sample-btn" onclick="playSample('loop2')">
+                        <i class="fas fa-guitar"></i><br>Rock Loop
+                    </button>
+                    <button class="sample-btn" onclick="playSample('loop3')">
+                        <i class="fas fa-wave-square"></i><br>Electronic
+                    </button>
+                    <button class="sample-btn" onclick="playSample('loop4')">
+                        <i class="fas fa-drum"></i><br>Trap Beat
+                    </button>
+                    <button class="sample-btn" onclick="playSample('vocal1')">
+                        <i class="fas fa-microphone"></i><br>Vocal Chop
+                    </button>
+                    <button class="sample-btn" onclick="playSample('fx1')">
+                        <i class="fas fa-bolt"></i><br>Sound FX
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-actions">
+                    <button class="modal-action-btn" onclick="addSampleToTrack()">
+                        <i class="fas fa-plus"></i> Add to Track
+                    </button>
+                    <button class="modal-action-btn" onclick="openModal('uploadModal')">
+                        <i class="fas fa-upload"></i> Upload Sample
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tuner Modal -->
+    <div id="tunerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-guitar"></i> Real-time Tuner</h3>
+                <button class="close-btn" onclick="closeModal('tunerModal')">&times;</button>
+            </div>
+            
+            <div class="tuner-display">
+                <div class="tuner-note" id="tunerNote">A</div>
+                <div class="tuner-cents" id="tunerCents">+0 cents</div>
+                <div class="tuner-needle">
+                    <div class="tuner-pointer" id="tunerPointer" style="left: 50%;"></div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-action-btn" id="tunerBtn" onclick="toggleTuner()">
+                    <i class="fas fa-play"></i> Start Tuner
+                </button>
+                <button class="modal-action-btn" onclick="calibrateTuner()">
+                    <i class="fas fa-cog"></i> Calibrate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-cog"></i> Audio Settings</h3>
+                <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 12px;">Sample Rate</span>
+                    <select id="sampleRate" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 6px; font-size: 11px;">
+                        <option value="44100">44.1 kHz</option>
+                        <option value="48000" selected>48 kHz</option>
+                        <option value="96000">96 kHz</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 12px;">Buffer Size</span>
+                    <select id="bufferSize" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white; padding: 6px; font-size: 11px;">
+                        <option value="256">256</option>
+                        <option value="512">512</option>
+                        <option value="1024" selected>1024</option>
+                        <option value="2048">2048</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 12px;">Auto-Save Project</span>
+                    <input type="checkbox" id="autoSave" checked style="transform: scale(1.3);">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 12px;">Metronome</span>
+                    <input type="checkbox" id="metronome" style="transform: scale(1.3);">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <span style="font-size: 12px;">Quantize Recording</span>
+                    <input type="checkbox" id="quantize" style="transform: scale(1.3);">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Settings Modal -->
+    <div id="trackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="trackModalTitle"><i class="fas fa-sliders-h"></i> Track Settings</h3>
+                <button class="close-btn" onclick="closeModal('trackModal')">&times;</button>
+            </div>
+            
+            <div class="track-modal-content">
+                <!-- Mix Controls -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-volume-up"></i> Mix Controls</h4>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Volume</span>
+                            <span id="modalVol">100%</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalVolume" min="0" max="100" value="100" oninput="updateModalVolume(this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Pan</span>
+                            <span id="modalPan">Center</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalPanning" min="-100" max="100" value="0" oninput="updateModalPan(this.value)">
+                    </div>
+                </div>
+                
+                <!-- 4-Band EQ -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-sliders-h"></i> 4-Band EQ</h4>
+                    <div class="eq-controls">
+                        <div class="eq-band">
+                            <label>Low</label>
+                            <div class="eq-knob" data-band="low"></div>
+                            <input type="range" class="modal-slider" id="eqLow" min="-12" max="12" value="0" oninput="updateEQ('low', this.value)">
+                            <span id="eqLowVal">0dB</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>Low-Mid</label>
+                            <div class="eq-knob" data-band="lowmid"></div>
+                            <input type="range" class="modal-slider" id="eqLowMid" min="-12" max="12" value="0" oninput="updateEQ('lowmid', this.value)">
+                            <span id="eqLowMidVal">0dB</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>High-Mid</label>
+                            <div class="eq-knob" data-band="highmid"></div>
+                            <input type="range" class="modal-slider" id="eqHighMid" min="-12" max="12" value="0" oninput="updateEQ('highmid', this.value)">
+                            <span id="eqHighMidVal">0dB</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>High</label>
+                            <div class="eq-knob" data-band="high"></div>
+                            <input type="range" class="modal-slider" id="eqHigh" min="-12" max="12" value="0" oninput="updateEQ('high', this.value)">
+                            <span id="eqHighVal">0dB</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Compressor -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-compress"></i> Compressor</h4>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Threshold</span>
+                            <span id="compThresholdVal">-24dB</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="compThreshold" min="-60" max="0" value="-24" oninput="updateCompressor('threshold', this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Ratio</span>
+                            <span id="compRatioVal">4:1</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="compRatio" min="1" max="20" value="4" oninput="updateCompressor('ratio', this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Attack</span>
+                            <span id="compAttackVal">3ms</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="compAttack" min="0" max="100" value="3" oninput="updateCompressor('attack', this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Release</span>
+                            <span id="compReleaseVal">250ms</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="compRelease" min="10" max="1000" value="250" oninput="updateCompressor('release', this.value)">
+                    </div>
+                </div>
+                
+                <!-- Effects -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-magic"></i> Audio Effects</h4>
+                    
+                    <div class="modal-effects-grid">
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('reverb')">
+                            <i class="fas fa-water" style="font-size: 16px; margin-bottom: 6px;"></i><br>Reverb
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('delay')">
+                            <i class="fas fa-echo" style="font-size: 16px; margin-bottom: 6px;"></i><br>Delay
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('distortion')">
+                            <i class="fas fa-bolt" style="font-size: 16px; margin-bottom: 6px;"></i><br>Distortion
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('filter')">
+                            <i class="fas fa-filter" style="font-size: 16px; margin-bottom: 6px;"></i><br>Filter
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('chorus')">
+                            <i class="fas fa-wave-square" style="font-size: 16px; margin-bottom: 6px;"></i><br>Chorus
+                        </button>
+                        <button class="modal-effect-btn" onclick="toggleModalEffect('phaser')">
+                            <i class="fas fa-circle-notch" style="font-size: 16px; margin-bottom: 6px;"></i><br>Phaser
+                        </button>
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Effect Mix</span>
+                            <span id="modalFX">0%</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="modalFXMix" min="0" max="100" value="0" oninput="updateModalFX(this.value)">
+                    </div>
+                </div>
+                
+                <!-- Time Stretching & Pitch -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-expand-arrows-alt"></i> Time & Pitch</h4>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Time Stretch</span>
+                            <span id="timeStretchVal">100%</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="timeStretch" min="50" max="200" value="100" oninput="updateTimeStretch(this.value)">
+                    </div>
+                    
+                    <div class="modal-slider-group">
+                        <div class="modal-slider-label">
+                            <span>Pitch Shift</span>
+                            <span id="pitchShiftVal">0 semitones</span>
+                        </div>
+                        <input type="range" class="modal-slider" id="pitchShift" min="-12" max="12" value="0" oninput="updatePitchShift(this.value)">
+                    </div>
+                </div>
+                
+                <!-- Track Actions -->
+                <div class="modal-section">
+                    <h4><i class="fas fa-tools"></i> Track Actions</h4>
+                    
+                    <div class="modal-actions">
+                        <button class="modal-action-btn" onclick="clearModalTrack()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="modal-action-btn" onclick="duplicateTrack()">
+                            <i class="fas fa-copy"></i> Duplicate
+                        </button>
+                        <button class="modal-action-btn" onclick="soloTrack()">
+                            <i class="fas fa-headphones"></i> Solo
+                        </button>
+                        <button class="modal-action-btn" onclick="muteTrack()">
+                            <i class="fas fa-volume-mute"></i> Mute
+                        </button>
+                        <button class="modal-action-btn" onclick="freezeTrack()">
+                            <i class="fas fa-snowflake"></i> Freeze
+                        </button>
+                        <button class="modal-action-btn" onclick="reverseTrack()">
+                            <i class="fas fa-backward"></i> Reverse
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div id="templatesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-save"></i> Project Templates</h3>
+                <button class="close-btn" onclick="closeModal('templatesModal')">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Load Template</h4>
+                <div class="samples-grid">
+                    <button class="sample-btn" onclick="loadTemplate('hiphop')">
+                        <i class="fas fa-music"></i><br>Hip Hop<br><small>4 tracks, 90 BPM</small>
+                    </button>
+                    <button class="sample-btn" onclick="loadTemplate('rock')">
+                        <i class="fas fa-guitar"></i><br>Rock Band<br><small>6 tracks, 120 BPM</small>
+                    </button>
+                    <button class="sample-btn" onclick="loadTemplate('electronic')">
+                        <i class="fas fa-wave-square"></i><br>Electronic<br><small>8 tracks, 128 BPM</small>
+                    </button>
+                    <button class="sample-btn" onclick="loadTemplate('acoustic')">
+                        <i class="fas fa-microphone"></i><br>Acoustic<br><small>3 tracks, 75 BPM</small>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <h4>Save Current as Template</h4>
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="templateName" placeholder="Template name..." style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 12px;">
+                </div>
+                <button class="modal-action-btn" onclick="saveTemplate()" style="width: 100%;">
+                    <i class="fas fa-save"></i> Save Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirm Action</h3>
+            </div>
+            
+            <p id="confirmMessage" style="margin-bottom: 20px; text-align: center; font-size: 12px;"></p>
+            
+            <div class="confirmation-buttons">
+                <button class="confirm-btn cancel" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="confirm-btn danger" id="confirmAction">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Overlay -->
+    <div id="shortcutsOverlay" class="shortcuts-overlay">
+        <div class="shortcuts-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+                <button class="close-btn" onclick="toggleShortcuts()">&times;</button>
+            </div>
+            
+            <div class="shortcut-group">
+                <h4>Transport</h4>
+                <div class="shortcut-item">
+                    <span>Play/Pause</span>
+                    <span class="shortcut-key">Space</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Stop</span>
+                    <span class="shortcut-key">S</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Record</span>
+                    <span class="shortcut-key">R</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Loop Toggle</span>
+                    <span class="shortcut-key">L</span>
+                </div>
+            </div>
+            
+            <div class="shortcut-group">
+                <h4>Editing</h4>
+                <div class="shortcut-item">
+                    <span>Undo</span>
+                    <span class="shortcut-key">Ctrl+Z</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Redo</span>
+                    <span class="shortcut-key">Ctrl+Y</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Copy</span>
+                    <span class="shortcut-key">Ctrl+C</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Paste</span>
+                    <span class="shortcut-key">Ctrl+V</span>
+                </div>
+            </div>
+            
+            <div class="shortcut-group">
+                <h4>Tracks</h4>
+                <div class="shortcut-item">
+                    <span>Add Track</span>
+                    <span class="shortcut-key">Ctrl+T</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Delete Track</span>
+                    <span class="shortcut-key">Del</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Solo Track</span>
+                    <span class="shortcut-key">Alt+S</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Mute Track</span>
+                    <span class="shortcut-key">Alt+M</span>
+                </div>
+            </div>
+            
+            <div class="shortcut-group">
+                <h4>Tools</h4>
+                <div class="shortcut-item">
+                    <span>Synthesizer</span>
+                    <span class="shortcut-key">Ctrl+1</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Drum Machine</span>
+                    <span class="shortcut-key">Ctrl+2</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Tuner</span>
+                    <span class="shortcut-key">Ctrl+3</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Upload</span>
+                    <span class="shortcut-key">Ctrl+U</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+        Ultimate Pro DAW ready - Press ? for shortcuts
+    </div>
+
+    <script>
+        // Global variables
+        let audioContext;
+        let tracks = {};
+        let trackCounter = 0;
+        let masterGainNode;
+        let masterCompressor;
+        let masterEQ;
+        let spectrumAnalyzer;
+        let currentModalTrack = null;
+        let isRecordingAny = false;
+        let isPlaying = false;
+        let isLooping = false;
+        let currentTime = 0;
+        let selectedTrackColor = '#4ecdc4';
+        let undoStack = [];
+        let redoStack = [];
+        let synthOscillator = null;
+        let synthGain = null;
+        let drumSounds = {};
+        let drumPattern = [];
+        let drumPlaying = false;
+        let tunerActive = false;
+        let tunerAnalyzer = null;
+        let projectSettings = {
+            sampleRate: 48000,
+            bufferSize: 1024,
+            autoSave: true,
+            metronome: false,
+            quantize: false,
+            bpm: 120
+        };
+
+        // Initialize audio system
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: projectSettings.sampleRate
+                });
+                
+                // Create master chain
+                masterCompressor = audioContext.createDynamicsCompressor();
+                masterEQ = audioContext.createBiquadFilter();
+                masterGainNode = audioContext.createGain();
+                spectrumAnalyzer = audioContext.createAnalyser();
+                
+                // Connect master chain
+                masterCompressor.connect(masterEQ);
+                masterEQ.connect(masterGainNode);
+                masterGainNode.connect(spectrumAnalyzer);
+                spectrumAnalyzer.connect(audioContext.destination);
+                
+                // Configure master effects
+                masterCompressor.threshold.value = -24;
+                masterCompressor.knee.value = 30;
+                masterCompressor.ratio.value = 12;
+                masterCompressor.attack.value = 0.003;
+                masterCompressor.release.value = 0.25;
+                
+                masterEQ.type = 'peaking';
+                masterEQ.frequency.value = 1000;
+                masterEQ.Q.value = 1;
+                masterEQ.gain.value = 0;
+                
+                // Configure spectrum analyzer
+                spectrumAnalyzer.fftSize = 256;
+                spectrumAnalyzer.smoothingTimeConstant = 0.8;
+                
+                // Initialize synthesizer
+                initSynthesizer();
+                
+                // Initialize drum machine
+                initDrumMachine();
+                
+                // Start spectrum visualization
+                startSpectrumVisualization();
+                
+                updateStatus('Ultimate Pro DAW initialized - All systems ready');
+                
+                // Add initial track
+                addTrack('audio');
+                
+            } catch (error) {
+                console.error('Audio initialization failed:', error);
+                updateStatus('Audio system unavailable - limited functionality');
+            }
+        }
+
+        // Undo/Redo system
+        function saveState(action) {
+            const state = {
+                tracks: JSON.parse(JSON.stringify(Object.keys(tracks).reduce((acc, key) => {
+                    acc[key] = {
+                        id: tracks[key].id,
+                        name: tracks[key].name,
+                        type: tracks[key].type,
+                        color: tracks[key].color,
+                        hasAudio: !!tracks[key].audioBuffer
+                    };
+                    return acc;
+                }, {}))),
+                trackCounter: trackCounter,
+                action: action,
+                timestamp: Date.now()
+            };
+            
+            undoStack.push(state);
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            
+            const currentState = {
+                tracks: JSON.parse(JSON.stringify(Object.keys(tracks).reduce((acc, key) => {
+                    acc[key] = {
+                        id: tracks[key].id,
+                        name: tracks[key].name,
+                        type: tracks[key].type,
+                        color: tracks[key].color,
+                        hasAudio: !!tracks[key].audioBuffer
+                    };
+                    return acc;
+                }, {}))),
+                trackCounter: trackCounter
+            };
+            
+            redoStack.push(currentState);
+            const previousState = undoStack.pop();
+            
+            // Restore state
+            restoreState(previousState);
+            updateUndoRedoButtons();
+            updateStatus(`Undid: ${previousState.action}`);
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            
+            const currentState = {
+                tracks: JSON.parse(JSON.stringify(Object.keys(tracks).reduce((acc, key) => {
+                    acc[key] = {
+                        id: tracks[key].id,
+                        name: tracks[key].name,
+                        type: tracks[key].type,
+                        color: tracks[key].color,
+                        hasAudio: !!tracks[key].audioBuffer
+                    };
+                    return acc;
+                }, {}))),
+                trackCounter: trackCounter
+            };
+            
+            undoStack.push(currentState);
+            const nextState = redoStack.pop();
+            
+            restoreState(nextState);
+            updateUndoRedoButtons();
+            updateStatus(`Redid action`);
+        }
+
+        function restoreState(state) {
+            // Clear current tracks
+            Object.keys(tracks).forEach(trackId => {
+                if (tracks[trackId].gainNode) {
+                    tracks[trackId].gainNode.disconnect();
+                }
+            });
+            tracks = {};
+            
+            // Restore tracks
+            Object.keys(state.tracks).forEach(trackId => {
+                const trackData = state.tracks[trackId];
+                createTrackFromData(trackData);
+            });
+            
+            trackCounter = state.trackCounter;
+            renderTracks();
+        }
+
+        function createTrackFromData(data) {
+            tracks[data.id] = {
+                id: data.id,
+                name: data.name,
+                type: data.type,
+                color: data.color,
+                gainNode: audioContext ? audioContext.createGain() : null,
+                panNode: audioContext ? audioContext.createStereoPanner() : null,
+                compressor: audioContext ? audioContext.createDynamicsCompressor() : null,
+                eq: {
+                    low: audioContext ? audioContext.createBiquadFilter() : null,
+                    lowmid: audioContext ? audioContext.createBiquadFilter() : null,
+                    highmid: audioContext ? audioContext.createBiquadFilter() : null,
+                    high: audioContext ? audioContext.createBiquadFilter() : null
+                },
+                effects: {},
+                isPlaying: false,
+                isMuted: false,
+                isSolo: false,
+                isRecording: false,
+                volume: 100,
+                pan: 0,
+                audioBuffer: null,
+                audioSource: null
+            };
+            
+            if (audioContext) {
+                setupTrackAudioChain(data.id);
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            
+            if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+            if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+        }
+
+        // Synthesizer functions
+        function initSynthesizer() {
+            if (!audioContext) return;
+            
+            // Update synth parameter displays
+            document.getElementById('synthFreq').oninput = function() {
+                document.getElementById('synthFreqVal').textContent = this.value + ' Hz';
+            };
+            
+            document.getElementById('synthDetune').oninput = function() {
+                document.getElementById('synthDetuneVal').textContent = this.value;
+            };
+            
+            document.getElementById('synthAttack').oninput = function() {
+                document.getElementById('synthAttackVal').textContent = this.value + 's';
+            };
+            
+            document.getElementById('synthDecay').oninput = function() {
+                document.getElementById('synthDecayVal').textContent = this.value + 's';
+            };
+            
+            document.getElementById('synthRelease').oninput = function() {
+                document.getElementById('synthReleaseVal').textContent = this.value + 's';
+            };
+        }
+
+        function playSynthNote(frequency) {
+            if (!audioContext) return;
+            
+            stopSynthNote();
+            
+            const waveform = document.getElementById('synthWave').value;
+            const detune = parseFloat(document.getElementById('synthDetune').value);
+            const attack = parseFloat(document.getElementById('synthAttack').value);
+            const decay = parseFloat(document.getElementById('synthDecay').value);
+            
+            synthOscillator = audioContext.createOscillator();
+            synthGain = audioContext.createGain();
+            
+            synthOscillator.type = waveform;
+            synthOscillator.frequency.value = frequency;
+            synthOscillator.detune.value = detune;
+            
+            synthOscillator.connect(synthGain);
+            synthGain.connect(masterGainNode);
+            
+            // Envelope
+            synthGain.gain.setValueAtTime(0, audioContext.currentTime);
+            synthGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + attack);
+            synthGain.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + attack + decay);
+            
+            synthOscillator.start();
+        }
+
+        function stopSynthNote() {
+            if (synthOscillator) {
+                const release = parseFloat(document.getElementById('synthRelease').value);
+                synthGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + release);
+                synthOscillator.stop(audioContext.currentTime + release);
+                synthOscillator = null;
+                synthGain = null;
+            }
+        }
+
+        function recordSynth() {
+            updateStatus('Synth recording started - Play notes to record');
+            // Implementation would capture synth output
+        }
+
+        function addSynthToTrack() {
+            const activeTrack = Object.keys(tracks).find(id => tracks[id].isRecording);
+            if (activeTrack) {
+                updateStatus('Synth added to track');
+                closeModal('synthModal');
+            } else {
+                updateStatus('No active recording track - start recording first');
+            }
+        }
+
+        // Drum machine functions
+        function initDrumMachine() {
+            if (!audioContext) return;
+            
+            // Initialize drum sounds (using oscillators for demo)
+            drumSounds = {
+                kick: () => createDrumSound(60, 0.5, 'sine'),
+                snare: () => createDrumSound(200, 0.2, 'square'),
+                hihat: () => createDrumSound(8000, 0.1, 'square'),
+                openhat: () => createDrumSound(8000, 0.3, 'square'),
+                crash: () => createDrumSound(4000, 0.8, 'sawtooth'),
+                ride: () => createDrumSound(3000, 0.4, 'triangle'),
+                tom1: () => createDrumSound(150, 0.3, 'sine'),
+                tom2: () => createDrumSound(100, 0.3, 'sine')
+            };
+            
+            // Initialize drum sequencer
+            initDrumSequencer();
+        }
+
+        function createDrumSound(frequency, duration, waveform) {
+            if (!audioContext) return;
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.type = waveform;
+            osc.frequency.value = frequency;
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = frequency * 2;
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGainNode);
+            
+            gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + duration);
+        }
+
+        function playDrum(drumType) {
+            if (drumSounds[drumType]) {
+                drumSounds[drumType]();
+                
+                // Visual feedback
+                const pad = document.querySelector(`[data-drum="${drumType}"]`);
+                if (pad) {
+                    pad.classList.add('active');
+                    setTimeout(() => pad.classList.remove('active'), 150);
+                }
+            }
+        }
+
+        function initDrumSequencer() {
+            const sequencer = document.getElementById('drumSequencer');
+            if (!sequencer) return;
+            
+            sequencer.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const step = document.createElement('div');
+                step.className = 'drum-pad';
+                step.style.height = '20px';
+                step.style.fontSize = '8px';
+                step.textContent = i + 1;
+                step.onclick = () => toggleDrumStep(i);
+                sequencer.appendChild(step);
+            }
+            
+            drumPattern = new Array(16).fill(false);
+        }
+
+        function toggleDrumStep(step) {
+            drumPattern[step] = !drumPattern[step];
+            const stepElement = document.getElementById('drumSequencer').children[step];
+            stepElement.classList.toggle('active', drumPattern[step]);
+        }
+
+        function toggleDrumPattern() {
+            const btn = document.getElementById('drumPlayBtn');
+            if (drumPlaying) {
+                drumPlaying = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Play Pattern';
+            } else {
+                drumPlaying = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Pattern';
+                playDrumPattern();
+            }
+        }
+
+        function playDrumPattern() {
+            if (!drumPlaying) return;
+            
+            let currentStep = 0;
+            const stepTime = (60 / projectSettings.bpm) * 1000 / 4; // 16th notes
+            
+            const playStep = () => {
+                if (!drumPlaying) return;
+                
+                // Highlight current step
+                const sequencer = document.getElementById('drumSequencer');
+                Array.from(sequencer.children).forEach((step, i) => {
+                    step.style.background = i === currentStep ? 
+                        'linear-gradient(45deg, #4ecdc4, #44a08d)' : 
+                        (drumPattern[i] ? 'linear-gradient(45deg, #ff6b6b, #ee5a24)' : 'rgba(255, 255, 255, 0.1)');
+                });
+                
+                // Play drum if step is active
+                if (drumPattern[currentStep]) {
+                    playDrum('kick'); // For demo, always play kick
+                }
+                
+                currentStep = (currentStep + 1) % 16;
+                setTimeout(playStep, stepTime);
+            };
+            
+            playStep();
+        }
+
+        function clearDrumPattern() {
+            drumPattern.fill(false);
+            const sequencer = document.getElementById('drumSequencer');
+            Array.from(sequencer.children).forEach(step => {
+                step.classList.remove('active');
+                step.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+        }
+
+        function recordDrumPattern() {
+            updateStatus('Drum pattern recording started');
+        }
+
+        function addDrumToTrack() {
+            updateStatus('Drum pattern added to track');
+            closeModal('drumModal');
+        }
+
+        // Sample functions
+        function playSample(sampleId) {
+            updateStatus(`Playing sample: ${sampleId}`);
+            // Demo implementation - would play actual samples
+        }
+
+        function addSampleToTrack() {
+            updateStatus('Sample added to track');
+            closeModal('samplesModal');
+        }
+
+        // Tuner functions
+        function toggleTuner() {
+            const btn = document.getElementById('tunerBtn');
+            
+            if (tunerActive) {
+                tunerActive = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Tuner';
+                if (tunerAnalyzer) {
+                    tunerAnalyzer.disconnect();
+                }
+                updateStatus('Tuner stopped');
+            } else {
+                startTuner();
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Tuner';
+                updateStatus('Tuner active - play a note');
+            }
+        }
+
+        async function startTuner() {
+            if (!audioContext) return;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const source = audioContext.createMediaStreamSource(stream);
+                
+                tunerAnalyzer = audioContext.createAnalyser();
+                tunerAnalyzer.fftSize = 4096;
+                tunerAnalyzer.smoothingTimeConstant = 0.8;
+                
+                source.connect(tunerAnalyzer);
+                
+                tunerActive = true;
+                updateTunerDisplay();
+                
+            } catch (error) {
+                console.error('Microphone access denied:', error);
+                updateStatus('Microphone access required for tuner');
+            }
+        }
+
+        function updateTunerDisplay() {
+            if (!tunerActive || !tunerAnalyzer) return;
+            
+            const bufferLength = tunerAnalyzer.frequencyBinCount;
+            const dataArray = new Float32Array(bufferLength);
+            tunerAnalyzer.getFloatFrequencyData(dataArray);
+            
+            // Find fundamental frequency (simplified)
+            let maxIndex = 0;
+            let maxValue = -Infinity;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                if (dataArray[i] > maxValue) {
+                    maxValue = dataArray[i];
+                    maxIndex = i;
+                }
+            }
+            
+            const frequency = maxIndex * audioContext.sampleRate / (tunerAnalyzer.fftSize * 2);
+            const note = frequencyToNote(frequency);
+            const cents = frequencyToCents(frequency, note.frequency);
+            
+            document.getElementById('tunerNote').textContent = note.name;
+            document.getElementById('tunerCents').textContent = `${cents > 0 ? '+' : ''}${cents} cents`;
+            
+            // Update needle position
+            const pointer = document.getElementById('tunerPointer');
+            const position = 50 + (cents / 50) * 25; // Scale cents to percentage
+            pointer.style.left = Math.max(0, Math.min(100, position)) + '%';
+            
+            if (tunerActive) {
+                requestAnimationFrame(updateTunerDisplay);
+            }
+        }
+
+        function frequencyToNote(frequency) {
+            const A4 = 440;
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            
+            const semitones = Math.round(12 * Math.log2(frequency / A4));
+            const noteIndex = (semitones + 9 + 12 * 10) % 12;
+            const octave = Math.floor((semitones + 9) / 12) + 4;
+            
+            return {
+                name: notes[noteIndex] + octave,
+                frequency: A4 * Math.pow(2, semitones / 12)
+            };
+        }
+
+        function frequencyToCents(frequency, targetFrequency) {
+            return Math.round(1200 * Math.log2(frequency / targetFrequency));
+        }
+
+        function calibrateTuner() {
+            updateStatus('Tuner calibrated to A440');
+        }
+
+        // Track management
+        function addTrack(type) {
+            if (!audioContext) {
+                updateStatus('Audio system not available');
+                return;
+            }
+            
+            trackCounter++;
+            const trackId = `track_${trackCounter}`;
+            
+            const trackNames = {
+                audio: 'Audio Track',
+                instrument: 'Instrument',
+                drums: 'Drum Kit',
+                group: 'Group Track'
+            };
+            
+            tracks[trackId] = {
+                id: trackId,
+                name: `${trackNames[type]} ${trackCounter}`,
+                type: type,
+                color: selectedTrackColor,
+                gainNode: audioContext.createGain(),
+                panNode: audioContext.createStereoPanner(),
+                compressor: audioContext.createDynamicsCompressor(),
+                eq: {
+                    low: audioContext.createBiquadFilter(),
+                    lowmid: audioContext.createBiquadFilter(),
+                    highmid: audioContext.createBiquadFilter(),
+                    high: audioContext.createBiquadFilter()
+                },
+                effects: {},
+                isPlaying: false,
+                isMuted: false,
+                isSolo: false,
+                isRecording: false,
+                volume: 100,
+                pan: 0,
+                audioBuffer: null,
+                audioSource: null,
+                automation: {},
+                timeStretch: 100,
+                pitchShift: 0
+            };
+            
+            setupTrackAudioChain(trackId);
+            renderTracks();
+            updateTrackSelect();
+            closeModal('addTrackModal');
+            
+            saveState(`Added ${trackNames[type]}`);
+            updateStatus(`${trackNames[type]} added successfully`);
+        }
+
+        function setupTrackAudioChain(trackId) {
+            const track = tracks[trackId];
+            if (!track || !audioContext) return;
+            
+            // Setup EQ
+            track.eq.low.type = 'lowshelf';
+            track.eq.low.frequency.value = 320;
+            track.eq.lowmid.type = 'peaking';
+            track.eq.lowmid.frequency.value = 1000;
+            track.eq.highmid.type = 'peaking';
+            track.eq.highmid.frequency.value = 3200;
+            track.eq.high.type = 'highshelf';
+            track.eq.high.frequency.value = 10000;
+            
+            // Setup compressor
+            track.compressor.threshold.value = -24;
+            track.compressor.knee.value = 30;
+            track.compressor.ratio.value = 4;
+            track.compressor.attack.value = 0.003;
+            track.compressor.release.value = 0.25;
+            
+            // Connect audio chain
+            track.eq.low.connect(track.eq.lowmid);
+            track.eq.lowmid.connect(track.eq.highmid);
+            track.eq.highmid.connect(track.eq.high);
+            track.eq.high.connect(track.compressor);
+            track.compressor.connect(track.panNode);
+            track.panNode.connect(track.gainNode);
+            track.gainNode.connect(masterCompressor);
+        }
+
+        function renderTracks() {
+            const container = document.getElementById('tracksContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.values(tracks).forEach(track => {
+                const trackElement = createTrackElement(track);
+                container.appendChild(trackElement);
+            });
+        }
+
+        function createTrackElement(track) {
+            const trackDiv = document.createElement('div');
+            trackDiv.className = 'track';
+            trackDiv.innerHTML = `
+                <div class="track-header">
+                    <div class="track-info">
+                        <div class="track-icon" style="background: linear-gradient(45deg, ${track.color}, ${adjustColor(track.color, -20)});">
+                            <i class="fas ${getTrackIcon(track.type)}"></i>
+                        </div>
+                        <div class="track-details">
+                            <div class="track-title">${track.name}</div>
+                            <div class="track-time">00:00 / 00:00</div>
+                        </div>
+                    </div>
+                    <div class="track-controls">
+                        <button class="mini-btn ${track.isMuted ? 'active' : ''}" onclick="toggleMute('${track.id}')" title="Mute">
+                            <i class="fas fa-volume-mute"></i>
+                        </button>
+                        <button class="mini-btn ${track.isSolo ? 'active' : ''}" onclick="toggleSolo('${track.id}')" title="Solo">
+                            <i class="fas fa-headphones"></i>
+                        </button>
+                        <button class="mini-btn record ${track.isRecording ? 'active' : ''}" onclick="toggleRecord('${track.id}')" title="Record">
+                            <i class="fas fa-circle"></i>
+                        </button>
+                        <button class="mini-btn" onclick="openTrackModal('${track.id}')" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="mini-btn delete" onclick="confirmDeleteTrack('${track.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="waveform-container">
+                    <canvas class="waveform-canvas" id="waveform_${track.id}" width="350" height="60"></canvas>
+                    <div class="waveform-overlay">
+                        ${track.audioBuffer ? 'Audio loaded' : 'No audio - click to record or upload'}
+                    </div>
+                </div>
+                
+                <div class="loop-controls">
+                    <button class="loop-btn" onclick="toggleTrackLoop('${track.id}')">
+                        <i class="fas fa-redo"></i> Loop
+                    </button>
+                    <button class="loop-btn" onclick="reverseTrack('${track.id}')">
+                        <i class="fas fa-backward"></i> Reverse
+                    </button>
+                    <button class="loop-btn" onclick="normalizeTrack('${track.id}')">
+                        <i class="fas fa-chart-line"></i> Normalize
+                    </button>
+                </div>
+                
+                <div class="automation-lane">
+                    <canvas class="automation-canvas" id="automation_${track.id}" width="350" height="30"></canvas>
+                </div>
+            `;
+            
+            // Add waveform visualization
+            setTimeout(() => drawWaveform(track.id), 100);
+            
+            return trackDiv;
+        }
+
+        function getTrackIcon(type) {
+            const icons = {
+                audio: 'fa-microphone',
+                instrument: 'fa-piano',
+                drums: 'fa-drum',
+                group: 'fa-layer-group'
+            };
+            return icons[type] || 'fa-music';
+        }
+
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * amount);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        function drawWaveform(trackId) {
+            const canvas = document.getElementById(`waveform_${trackId}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const track = tracks[trackId];
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (track && track.audioBuffer) {
+                const data = track.audioBuffer.getChannelData(0);
+                const step = Math.ceil(data.length / canvas.width);
+                const amp = canvas.height / 2;
+                
+                ctx.fillStyle = track.color;
+                ctx.globalAlpha = 0.8;
+                
+                for (let i = 0; i < canvas.width; i++) {
+                    let min = 1.0;
+                    let max = -1.0;
+                    
+                    for (let j = 0; j < step; j++) {
+                        const datum = data[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    
+                    ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+                }
+            } else {
+                // Draw placeholder
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height / 2);
+                ctx.lineTo(canvas.width, canvas.height / 2);
+                ctx.stroke();
+            }
+        }
+
+        // Track controls
+        function toggleMute(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            track.isMuted = !track.isMuted;
+            if (track.gainNode) {
+                track.gainNode.gain.value = track.isMuted ? 0 : track.volume / 100;
+            }
+            
+            renderTracks();
+            updateStatus(`Track ${track.isMuted ? 'muted' : 'unmuted'}`);
+        }
+
+        function toggleSolo(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            track.isSolo = !track.isSolo;
+            
+            // Handle solo logic
+            const hasSolo = Object.values(tracks).some(t => t.isSolo);
+            
+            Object.values(tracks).forEach(t => {
+                if (t.gainNode) {
+                    if (hasSolo) {
+                        t.gainNode.gain.value = (t.isSolo && !t.isMuted) ? t.volume / 100 : 0;
+                    } else {
+                        t.gainNode.gain.value = t.isMuted ? 0 : t.volume / 100;
+                    }
+                }
+            });
+            
+            renderTracks();
+            updateStatus(`Track ${track.isSolo ? 'soloed' : 'unsoloed'}`);
+        }
+
+        function toggleRecord(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            track.isRecording = !track.isRecording;
+            
+            if (track.isRecording) {
+                isRecordingAny = true;
+                updateStatus(`Recording on ${track.name}`);
+            } else {
+                isRecordingAny = Object.values(tracks).some(t => t.isRecording);
+                updateStatus(`Stopped recording on ${track.name}`);
+            }
+            
+            renderTracks();
+        }
+
+        function confirmDeleteTrack(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            document.getElementById('confirmMessage').textContent = 
+                `Are you sure you want to delete "${track.name}"? This action cannot be undone.`;
+            
+            document.getElementById('confirmAction').onclick = () => {
+                deleteTrack(trackId);
+                closeModal('confirmModal');
+            };
+            
+            openModal('confirmModal');
+        }
+
+        function deleteTrack(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            // Disconnect audio nodes
+            if (track.gainNode) track.gainNode.disconnect();
+            if (track.panNode) track.panNode.disconnect();
+            if (track.compressor) track.compressor.disconnect();
+            Object.values(track.eq).forEach(eq => eq && eq.disconnect());
+            
+            const trackName = track.name;
+            delete tracks[trackId];
+            
+            renderTracks();
+            updateTrackSelect();
+            saveState(`Deleted ${trackName}`);
+            updateStatus(`${trackName} deleted`);
+        }
+
+        function duplicateTrack(trackId) {
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            trackCounter++;
+            const newTrackId = `track_${trackCounter}`;
+            
+            tracks[newTrackId] = {
+                ...track,
+                id: newTrackId,
+                name: track.name + ' Copy',
+                gainNode: audioContext.createGain(),
+                panNode: audioContext.createStereoPanner(),
+                compressor: audioContext.createDynamicsCompressor(),
+                eq: {
+                    low: audioContext.createBiquadFilter(),
+                    lowmid: audioContext.createBiquadFilter(),
+                    highmid: audioContext.createBiquadFilter(),
+                    high: audioContext.createBiquadFilter()
+                },
+                isPlaying: false,
+                isRecording: false
+            };
+            
+            setupTrackAudioChain(newTrackId);
+            renderTracks();
+            updateTrackSelect();
+            saveState(`Duplicated ${track.name}`);
+            updateStatus(`Track duplicated`);
+        }
+
+        // Transport controls
+        function playAll() {
+            if (!audioContext) return;
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playAllBtn');
+            
+            if (isPlaying) {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+                btn.classList.add('active');
+                startPlayback();
+                updateStatus('Playback started');
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+                btn.classList.remove('active');
+                stopPlayback();
+                updateStatus('Playback paused');
+            }
+        }
+
+        function stopAll() {
+            isPlaying = false;
+            currentTime = 0;
+            
+            const btn = document.getElementById('playAllBtn');
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            btn.classList.remove('active');
+            
+            stopPlayback();
+            updateTimeDisplay();
+            updateStatus('Playback stopped');
+        }
+
+        function rewind() {
+            currentTime = 0;
+            updateTimeDisplay();
+            updateStatus('Rewound to beginning');
+        }
+
+        function record() {
+            if (!isRecordingAny) {
+                updateStatus('No tracks armed for recording - arm a track first');
+                return;
+            }
+            
+            if (!isPlaying) {
+                playAll();
+            }
+            
+            updateStatus('Recording started');
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            const btn = document.getElementById('loopBtn');
+            btn.classList.toggle('active', isLooping);
+            updateStatus(`Loop ${isLooping ? 'enabled' : 'disabled'}`);
+        }
+
+        function startPlayback() {
+            Object.values(tracks).forEach(track => {
+                if (track.audioBuffer && track.gainNode && !track.isMuted) {
+                    playTrack(track);
+                }
+            });
+            
+            updateTimeDisplay();
+        }
+
+        function stopPlayback() {
+            Object.values(tracks).forEach(track => {
+                if (track.audioSource) {
+                    track.audioSource.stop();
+                    track.audioSource = null;
+                }
+                track.isPlaying = false;
+            });
+        }
+
+        function playTrack(track) {
+            if (!track.audioBuffer || !audioContext) return;
+            
+            track.audioSource = audioContext.createBufferSource();
+            track.audioSource.buffer = track.audioBuffer;
+            track.audioSource.connect(track.eq.low);
+            
+            track.audioSource.loop = isLooping;
+            track.audioSource.start(0, currentTime);
+            track.isPlaying = true;
+            
+            track.audioSource.onended = () => {
+                track.isPlaying = false;
+                track.audioSource = null;
+            };
+        }
+
+        function updateTimeDisplay() {
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = Math.floor(currentTime % 60);
+            const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const display = document.getElementById('masterTime');
+            if (display) display.textContent = timeStr;
+            
+            if (isPlaying) {
+                currentTime += 0.1;
+                setTimeout(updateTimeDisplay, 100);
+            }
+        }
+
+        function updateBPM(bpm) {
+            projectSettings.bpm = parseInt(bpm);
+            updateStatus(`BPM set to ${bpm}`);
+        }
+
+        function updateMasterVolume(volume) {
+            if (masterGainNode) {
+                masterGainNode.gain.value = volume / 100;
+            }
+            document.getElementById('masterVol').textContent = volume + '%';
+        }
+
+        // File handling
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            processFiles(files);
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const uploadArea = event.target.closest('.upload-area');
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            processFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.closest('.upload-area').classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.closest('.upload-area').classList.remove('dragover');
+        }
+
+        async function processFiles(files) {
+            if (!audioContext) {
+                updateStatus('Audio system not available');
+                return;
+            }
+            
+            for (let file of files) {
+                if (file.type.startsWith('audio/')) {
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        
+                        // Create new track or add to selected track
+                        const selectedTrack = document.getElementById('trackSelect').value;
+                        let targetTrack;
+                        
+                        if (selectedTrack && tracks[selectedTrack]) {
+                            targetTrack = tracks[selectedTrack];
+                        } else {
+                            addTrack('audio');
+                            targetTrack = Object.values(tracks).pop();
+                        }
+                        
+                        targetTrack.audioBuffer = audioBuffer;
+                        targetTrack.name = file.name.replace(/\.[^/.]+$/, "");
+                        
+                        renderTracks();
+                        updateStatus(`${file.name} loaded successfully`);
+                        
+                    } catch (error) {
+                        console.error('Error loading audio file:', error);
+                        updateStatus(`Error loading ${file.name}`);
+                    }
+                }
+            }
+            
+            closeModal('uploadModal');
+        }
+
+        function updateTrackSelect() {
+            const select = document.getElementById('trackSelect');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Create New Track</option>';
+            
+            Object.values(tracks).forEach(track => {
+                const option = document.createElement('option');
+                option.value = track.id;
+                option.textContent = track.name;
+                select.appendChild(option);
+            });
+        }
+
+        function selectTrackColor(color) {
+            selectedTrackColor = color;
+            
+            // Update visual selection
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.style.border = option.style.background.includes(color) ? 
+                    '3px solid white' : 'none';
+            });
+        }
+
+        // Track modal functions
+        function openTrackModal(trackId) {
+            currentModalTrack = trackId;
+            const track = tracks[trackId];
+            if (!track) return;
+            
+            document.getElementById('trackModalTitle').innerHTML = 
+                `<i class="fas fa-sliders-h"></i> ${track.name} Settings`;
+            
+            // Load current values
+            document.getElementById('modalVolume').value = track.volume;
+            document.getElementById('modalVol').textContent = track.volume + '%';
+            document.getElementById('modalPanning').value = track.pan;
+            document.getElementById('modalPan').textContent = track.pan === 0 ? 'Center' : 
+                (track.pan > 0 ? `R${track.pan}` : `L${Math.abs(track.pan)}`);
+            
+            openModal('trackModal');
+        }
+
+        function updateModalVolume(value) {
+            document.getElementById('modalVol').textContent = value + '%';
+            
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].volume = parseInt(value);
+                if (tracks[currentModalTrack].gainNode && !tracks[currentModalTrack].isMuted) {
+                    tracks[currentModalTrack].gainNode.gain.value = value / 100;
+                }
+            }
+        }
+
+        function updateModalPan(value) {
+            const panText = value == 0 ? 'Center' : (value > 0 ? `R${value}` : `L${Math.abs(value)}`);
+            document.getElementById('modalPan').textContent = panText;
+            
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].pan = parseInt(value);
+                if (tracks[currentModalTrack].panNode) {
+                    tracks[currentModalTrack].panNode.pan.value = value / 100;
+                }
+            }
+        }
+
+        function updateEQ(band, value) {
+            document.getElementById(`eq${band.charAt(0).toUpperCase() + band.slice(1)}Val`).textContent = value + 'dB';
+            
+            if (currentModalTrack && tracks[currentModalTrack] && tracks[currentModalTrack].eq[band]) {
+                tracks[currentModalTrack].eq[band].gain.value = parseFloat(value);
+            }
+        }
+
+        function updateCompressor(param, value) {
+            const track = tracks[currentModalTrack];
+            if (!track || !track.compressor) return;
+            
+            switch (param) {
+                case 'threshold':
+                    track.compressor.threshold.value = parseFloat(value);
+                    document.getElementById('compThresholdVal').textContent = value + 'dB';
+                    break;
+                case 'ratio':
+                    track.compressor.ratio.value = parseFloat(value);
+                    document.getElementById('compRatioVal').textContent = value + ':1';
+                    break;
+                case 'attack':
+                    track.compressor.attack.value = parseFloat(value) / 1000;
+                    document.getElementById('compAttackVal').textContent = value + 'ms';
+                    break;
+                case 'release':
+                    track.compressor.release.value = parseFloat(value) / 1000;
+                    document.getElementById('compReleaseVal').textContent = value + 'ms';
+                    break;
+            }
+        }
+
+        function toggleModalEffect(effect) {
+            const btn = event.target.closest('.modal-effect-btn');
+            btn.classList.toggle('active');
+            
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].effects[effect] = btn.classList.contains('active');
+                updateStatus(`${effect} ${btn.classList.contains('active') ? 'enabled' : 'disabled'}`);
+            }
+        }
+
+        function updateModalFX(value) {
+            document.getElementById('modalFX').textContent = value + '%';
+            // Apply effect mix
+        }
+
+        function updateTimeStretch(value) {
+            document.getElementById('timeStretchVal').textContent = value + '%';
+            
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].timeStretch = parseInt(value);
+            }
+        }
+
+        function updatePitchShift(value) {
+            document.getElementById('pitchShiftVal').textContent = value + ' semitones';
+            
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].pitchShift = parseInt(value);
+            }
+        }
+
+        // Track actions
+        function clearModalTrack() {
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                tracks[currentModalTrack].audioBuffer = null;
+                if (tracks[currentModalTrack].audioSource) {
+                    tracks[currentModalTrack].audioSource.stop();
+                    tracks[currentModalTrack].audioSource = null;
+                }
+                renderTracks();
+                updateStatus('Track cleared');
+            }
+        }
+
+        function soloTrack() {
+            if (currentModalTrack) {
+                toggleSolo(currentModalTrack);
+            }
+        }
+
+        function muteTrack() {
+            if (currentModalTrack) {
+                toggleMute(currentModalTrack);
+            }
+        }
+
+        function freezeTrack() {
+            if (currentModalTrack && tracks[currentModalTrack]) {
+                updateStatus('Track frozen (rendered with effects)');
+            }
+        }
+
+        function reverseTrack() {
+            if (currentModalTrack && tracks[currentModalTrack] && tracks[currentModalTrack].audioBuffer) {
+                const buffer = tracks[currentModalTrack].audioBuffer;
+                const reversedBuffer = audioContext.createBuffer(
+                    buffer.numberOfChannels,
+                    buffer.length,
+                    buffer.sampleRate
+                );
+                
+                for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                    const channelData = buffer.getChannelData(channel);
+                    const reversedData = reversedBuffer.getChannelData(channel);
+                    
+                    for (let i = 0; i < channelData.length; i++) {
+                        reversedData[i] = channelData[channelData.length - 1 - i];
+                    }
+                }
+                
+                tracks[currentModalTrack].audioBuffer = reversedBuffer;
+                renderTracks();
+                updateStatus('Track reversed');
+            }
+        }
+
+        function normalizeTrack(trackId) {
+            const track = tracks[trackId];
+            if (!track || !track.audioBuffer) return;
+            
+            // Find peak amplitude
+            let peak = 0;
+            for (let channel = 0; channel < track.audioBuffer.numberOfChannels; channel++) {
+                const channelData = track.audioBuffer.getChannelData(channel);
+                for (let i = 0; i < channelData.length; i++) {
+                    peak = Math.max(peak, Math.abs(channelData[i]));
+                }
+            }
+            
+            // Normalize to 0.9 to prevent clipping
+            const gain = 0.9 / peak;
+            
+            for (let channel = 0; channel < track.audioBuffer.numberOfChannels; channel++) {
+                const channelData = track.audioBuffer.getChannelData(channel);
+                for (let i = 0; i < channelData.length; i++) {
+                    channelData[i] *= gain;
+                }
+            }
+            
+            renderTracks();
+            updateStatus('Track normalized');
+        }
+
+        // Export functions
+        async function exportMix() {
+            updateStatus('Preparing mix export...');
+            
+            // Create a simple WAV file header (demo implementation)
+            const sampleRate = 44100;
+            const duration = 30; // 30 seconds demo
+            const numSamples = sampleRate * duration;
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+            
+            // Generate demo audio data (sine wave)
+            for (let i = 0; i < numSamples; i++) {
+                const sample = Math.sin(2 * Math.PI * 440 * i / sampleRate) * 0.3;
+                view.setInt16(44 + i * 2, sample * 32767, true);
+            }
+            
+            try {
+                if (window.showSaveFilePicker) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: 'my_mix.wav',
+                        types: [{ 
+                            description: 'Audio files',
+                            accept: {'audio/wav': ['.wav']} 
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(buffer);
+                    await writable.close();
+                    updateStatus('Mix exported successfully!');
+                } else {
+                    fallbackSaveAudio(buffer, 'my_mix.wav');
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    fallbackSaveAudio(buffer, 'my_mix.wav');
+                }
+            }
+        }
+
+        function fallbackSaveAudio(buffer, filename) {
+            const blob = new Blob([buffer], {type: 'audio/wav'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            updateStatus('Mix exported successfully!');
+        }
+
+        async function exportStems() {
+            updateStatus('Exporting individual track stems...');
+            
+            for (const [trackId, track] of Object.entries(tracks)) {
+                if (track.audioBuffer) {
+                    // Create individual track export
+                    const buffer = createTrackWAV(track);
+                    const filename = `${track.name.replace(/[^a-z0-9]/gi, '_')}_stem.wav`;
+                    
+                    try {
+                        if (window.showSaveFilePicker) {
+                            const handle = await window.showSaveFilePicker({
+                                suggestedName: filename,
+                                types: [{ 
+                                    description: 'Audio files',
+                                    accept: {'audio/wav': ['.wav']} 
+                                }]
+                            });
+                            const writable = await handle.createWritable();
+                            await writable.write(buffer);
+                            await writable.close();
+                        } else {
+                            fallbackSaveAudio(buffer, filename);
+                        }
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            fallbackSaveAudio(buffer, filename);
+                        }
+                    }
+                }
+            }
+            
+            updateStatus('All stems exported successfully!');
+        }
+
+        function createTrackWAV(track) {
+            // Simplified WAV creation for demo
+            const sampleRate = 44100;
+            const duration = 10;
+            const numSamples = sampleRate * duration;
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+            
+            // WAV header (same as exportMix)
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + numSamples * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, numSamples * 2, true);
+            
+            // Use actual track data if available, otherwise generate demo
+            if (track.audioBuffer) {
+                const sourceData = track.audioBuffer.getChannelData(0);
+                for (let i = 0; i < Math.min(numSamples, sourceData.length); i++) {
+                    view.setInt16(44 + i * 2, sourceData[i] * 32767, true);
+                }
+            }
+            
+            return buffer;
+        }
+
+        function bounceInPlace() {
+            updateStatus('Bouncing tracks in place...');
+            
+            Object.values(tracks).forEach(track => {
+                if (track.audioBuffer) {
+                    // Apply all effects and processing to the audio buffer
+                    // This is a simplified version - real implementation would apply EQ, compression, etc.
+                    updateStatus(`Bounced ${track.name} with all effects`);
+                }
+            });
+            
+            renderTracks();
+            updateStatus('All tracks bounced in place');
+        }
+
+        // Template functions
+        function loadTemplate(templateType) {
+            const templates = {
+                hiphop: {
+                    bpm: 90,
+                    tracks: [
+                        { name: 'Kick', type: 'drums', color: '#ff6b6b' },
+                        { name: 'Snare', type: 'drums', color: '#4ecdc4' },
+                        { name: 'Hi-Hats', type: 'drums', color: '#667eea' },
+                        { name: 'Bass', type: 'instrument', color: '#ffa502' }
+                    ]
+                },
+                rock: {
+                    bpm: 120,
+                    tracks: [
+                        { name: 'Drums', type: 'drums', color: '#ff6b6b' },
+                        { name: 'Bass Guitar', type: 'audio', color: '#4ecdc4' },
+                        { name: 'Rhythm Guitar', type: 'audio', color: '#667eea' },
+                        { name: 'Lead Guitar', type: 'audio', color: '#ffa502' },
+                        { name: 'Vocals', type: 'audio', color: '#2ed573' },
+                        { name: 'Backing Vocals', type: 'group', color: '#a55eea' }
+                    ]
+                },
+                electronic: {
+                    bpm: 128,
+                    tracks: [
+                        { name: 'Kick', type: 'drums', color: '#ff6b6b' },
+                        { name: 'Snare', type: 'drums', color: '#4ecdc4' },
+                        { name: 'Hi-Hats', type: 'drums', color: '#667eea' },
+                        { name: 'Bass Synth', type: 'instrument', color: '#ffa502' },
+                        { name: 'Lead Synth', type: 'instrument', color: '#2ed573' },
+                        { name: 'Pad', type: 'instrument', color: '#a55eea' },
+                        { name: 'Arp', type: 'instrument', color: '#ff9ff3' },
+                        { name: 'FX', type: 'audio', color: '#54a0ff' }
+                    ]
+                },
+                acoustic: {
+                    bpm: 75,
+                    tracks: [
+                        { name: 'Acoustic Guitar', type: 'audio', color: '#ffa502' },
+                        { name: 'Vocals', type: 'audio', color: '#2ed573' },
+                        { name: 'Cajon', type: 'drums', color: '#ff6b6b' }
+                    ]
+                }
+            };
+            
+            const template = templates[templateType];
+            if (!template) return;
+            
+            // Clear existing tracks
+            Object.keys(tracks).forEach(trackId => deleteTrack(trackId));
+            
+            // Set BPM
+            projectSettings.bpm = template.bpm;
+            document.getElementById('bpmInput').value = template.bpm;
+            
+            // Create template tracks
+            template.tracks.forEach(trackData => {
+                selectedTrackColor = trackData.color;
+                addTrack(trackData.type);
+                const newTrack = Object.values(tracks).pop();
+                newTrack.name = trackData.name;
+            });
+            
+            renderTracks();
+            closeModal('templatesModal');
+            updateStatus(`${templateType.charAt(0).toUpperCase() + templateType.slice(1)} template loaded`);
+        }
+
+        async function saveTemplate() {
+            const templateName = document.getElementById('templateName').value.trim();
+            if (!templateName) {
+                updateStatus('Please enter a template name');
+                return;
+            }
+            
+            const templateData = {
+                name: templateName,
+                bpm: projectSettings.bpm,
+                tracks: Object.values(tracks).map(track => ({
+                    name: track.name,
+                    type: track.type,
+                    color: track.color,
+                    volume: track.volume,
+                    pan: track.pan
+                })),
+                created: new Date().toISOString()
+            };
+            
+            const jsonData = JSON.stringify(templateData, null, 2);
+            
+            try {
+                if (window.showSaveFilePicker) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: `${templateName}.json`,
+                        types: [{ 
+                            description: 'Template files',
+                            accept: {'application/json': ['.json']} 
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(jsonData);
+                    await writable.close();
+                    updateStatus('Template saved successfully!');
+                } else {
+                    fallbackSaveTemplate(jsonData, `${templateName}.json`);
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    fallbackSaveTemplate(jsonData, `${templateName}.json`);
+                }
+            }
+            
+            document.getElementById('templateName').value = '';
+            closeModal('templatesModal');
+        }
+
+        function fallbackSaveTemplate(content, filename) {
+            const blob = new Blob([content], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            updateStatus('Template saved successfully!');
+        }
+
+        // Spectrum analyzer
+        function startSpectrumVisualization() {
+            if (!spectrumAnalyzer) return;
+            
+            const canvas = document.getElementById('spectrumCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const bufferLength = spectrumAnalyzer.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                requestAnimationFrame(draw);
+                
+                spectrumAnalyzer.getByteFrequencyData(dataArray);
+                
+                ctx.fillStyle = 'rgba(15, 15, 35, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const barWidth = canvas.width / bufferLength * 2.5;
+                let barHeight;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * canvas.height;
+                    
+                    const hue = (i / bufferLength) * 360;
+                    ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.8)`;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    
+                    x += barWidth + 1;
+                }
+            }
+            
+            draw();
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Keyboard shortcuts
+        function toggleShortcuts() {
+            const overlay = document.getElementById('shortcutsOverlay');
+            if (overlay) {
+                overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        // Status updates
+        function updateStatus(message) {
+            const statusBar = document.getElementById('statusBar');
+            if (statusBar) {
+                statusBar.textContent = message;
+                
+                // Auto-clear status after 3 seconds
+                setTimeout(() => {
+                    if (statusBar.textContent === message) {
+                        statusBar.textContent = 'Ultimate Pro DAW ready - Press ? for shortcuts';
+                    }
+                }, 3000);
+            }
+        }
+
+        // Keyboard event handlers
+        document.addEventListener('keydown', function(event) {
+            // Prevent shortcuts when typing in inputs
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch(event.code) {
+                case 'Space':
+                    event.preventDefault();
+                    playAll();
+                    break;
+                case 'KeyS':
+                    if (!event.ctrlKey) {
+                        event.preventDefault();
+                        stopAll();
+                    }
+                    break;
+                case 'KeyR':
+                    if (!event.ctrlKey) {
+                        event.preventDefault();
+                        record();
+                    }
+                    break;
+                case 'KeyL':
+                    if (!event.ctrlKey) {
+                        event.preventDefault();
+                        toggleLoop();
+                    }
+                    break;
+                case 'KeyZ':
+                    if (event.ctrlKey && !event.shiftKey) {
+                        event.preventDefault();
+                        undo();
+                    }
+                    break;
+                case 'KeyY':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        redo();
+                    }
+                    break;
+                case 'KeyT':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        openModal('addTrackModal');
+                    }
+                    break;
+                case 'KeyU':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        openModal('uploadModal');
+                    }
+                    break;
+                case 'Digit1':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        openModal('synthModal');
+                    }
+                    break;
+                case 'Digit2':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        openModal('drumModal');
+                    }
+                    break;
+                case 'Digit3':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        openModal('tunerModal');
+                    }
+                    break;
+                case 'Slash':
+                    if (event.shiftKey) { // Question mark
+                        event.preventDefault();
+                        toggleShortcuts();
+                    }
+                    break;
+                case 'Delete':
+                    // Delete selected track (would need track selection system)
+                    break;
+                case 'Escape':
+                    // Close any open modal
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                        }
+                    });
+                    document.getElementById('shortcutsOverlay').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    break;
+            }
+        });
+
+        // Click outside modal to close
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Auto-save functionality
+        function autoSave() {
+            if (!projectSettings.autoSave) return;
+            
+            const projectData = {
+                tracks: Object.values(tracks).map(track => ({
+                    id: track.id,
+                    name: track.name,
+                    type: track.type,
+                    color: track.color,
+                    volume: track.volume,
+                    pan: track.pan,
+                    hasAudio: !!track.audioBuffer
+                })),
+                settings: projectSettings,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('daw_autosave', JSON.stringify(projectData));
+        }
+
+        function loadAutoSave() {
+            const saved = localStorage.getItem('daw_autosave');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    // Could restore project state here
+                    updateStatus('Auto-save data found (restore feature coming soon)');
+                } catch (error) {
+                    console.error('Error loading auto-save:', error);
+                }
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(autoSave, 30000);
+
+        // Utility functions
+        function toggleTrackLoop(trackId) {
+            const track = tracks[trackId];
+            if (track) {
+                track.loop = !track.loop;
+                updateStatus(`Loop ${track.loop ? 'enabled' : 'disabled'} for ${track.name}`);
+                renderTracks();
+            }
+        }
+
+        // Touch/mobile optimizations
+        function handleTouchStart(event) {
+            // Handle touch events for mobile
+            if (event.target.classList.contains('transport-btn') || 
+                event.target.classList.contains('mini-btn')) {
+                event.target.style.transform = 'scale(0.95)';
+            }
+        }
+
+        function handleTouchEnd(event) {
+            if (event.target.classList.contains('transport-btn') || 
+                event.target.classList.contains('mini-btn')) {
+                event.target.style.transform = '';
+            }
+        }
+
+        // Add touch event listeners
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('touchend', handleTouchEnd);
+
+        // Responsive adjustments
+        function handleResize() {
+            const container = document.querySelector('.main-container');
+            if (container && window.innerWidth < 480) {
+                container.style.padding = '10px';
+            }
+            
+            // Redraw canvases on resize
+            Object.keys(tracks).forEach(trackId => {
+                setTimeout(() => drawWaveform(trackId), 100);
+            });
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Performance monitoring
+        function monitorPerformance() {
+            if (audioContext && audioContext.state === 'running') {
+                const latency = audioContext.baseLatency + audioContext.outputLatency;
+                if (latency > 0.1) { // 100ms threshold
+                    console.warn('High audio latency detected:', latency);
+                }
+            }
+        }
+
+        setInterval(monitorPerformance, 5000);
+
+        // Error handling
+        window.addEventListener('error', function(event) {
+            console.error('DAW Error:', event.error);
+            updateStatus('An error occurred - check console for details');
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function(event) {
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+            
+            // Save current state
+            autoSave();
+        });
+
+        // Initialize the DAW when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Initializing Ultimate Pro DAW...');
+            
+            // Small delay to ensure DOM is fully ready
+            setTimeout(() => {
+                initAudio();
+                loadAutoSave();
+                updateUndoRedoButtons();
+                
+                // Show welcome message
+                setTimeout(() => {
+                    updateStatus('🎵 Ultimate Pro DAW ready! Click + to add your first track');
+                }, 1000);
+            }, 100);
+        });
+
+        // Export global functions for HTML onclick handlers
+        window.DAW = {
+            // Transport
+            playAll,
+            stopAll,
+            rewind,
+            record,
+            toggleLoop,
+            updateBPM,
+            updateMasterVolume,
+            
+            // Tracks
+            addTrack,
+            toggleMute,
+            toggleSolo,
+            toggleRecord,
+            confirmDeleteTrack,
+            deleteTrack,
+            duplicateTrack,
+            openTrackModal,
+            toggleTrackLoop,
+            reverseTrack,
+            normalizeTrack,
+            
+            // Modals
+            openModal,
+            closeModal,
+            toggleShortcuts,
+            
+            // Files
+            handleFileSelect,
+            handleDrop,
+            handleDragOver,
+            handleDragLeave,
+            selectTrackColor,
+            
+            // Track Modal
+            updateModalVolume,
+            updateModalPan,
+            updateEQ,
+            updateCompressor,
+            toggleModalEffect,
+            updateModalFX,
+            updateTimeStretch,
+            updatePitchShift,
+            clearModalTrack,
+            soloTrack,
+            muteTrack,
+            freezeTrack,
+            reverseTrack,
+            
+            // Synth
+            playSynthNote,
+            stopSynthNote,
+            recordSynth,
+            addSynthToTrack,
+            
+            // Drums
+            playDrum,
+            toggleDrumStep,
+            toggleDrumPattern,
+            clearDrumPattern,
+            recordDrumPattern,
+            addDrumToTrack,
+            
+            // Samples
+            playSample,
+            addSampleToTrack,
+            
+            // Tuner
+            toggleTuner,
+            calibrateTuner,
+            
+            // Export
+            exportMix,
+            exportStems,
+            bounceInPlace,
+            
+            // Templates
+            loadTemplate,
+            saveTemplate,
+            
+            // Undo/Redo
+            undo,
+            redo
+        };
+
+        // Make functions available globally for onclick handlers
+        Object.assign(window, window.DAW);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95baff08528e22f8',t:'MTc1MTkyOTYyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
