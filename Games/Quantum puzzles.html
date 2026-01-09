@@ -1,0 +1,1008 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .game-tile {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .game-tile:active {
+            transform: scale(0.95);
+        }
+        .pattern-container {
+            perspective: 1000px;
+        }
+        .pattern-tile {
+            transition: all 0.4s ease;
+            backface-visibility: hidden;
+        }
+        .pattern-tile.flip {
+            transform: rotateY(180deg);
+        }
+        .pattern-tile.shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .hint-highlight {
+            animation: hintPulse 2s infinite;
+        }
+        @keyframes hintPulse {
+            0% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(66, 153, 225, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-800 min-h-screen">
+    <div id="game-container" class="max-w-md mx-auto p-4 flex flex-col h-screen">
+        <!-- Header -->
+        <header class="text-center mb-4">
+            <h1 class="text-3xl font-bold text-white mb-1">Quantum Patterns</h1>
+            <p class="text-sm text-blue-200">Think outside the box to solve the patterns</p>
+        </header>
+
+        <!-- Game Stats -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="bg-white bg-opacity-20 rounded-lg p-2 text-white">
+                <span>Level: </span>
+                <span id="level-display" class="font-bold">1</span>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-lg p-2 text-white">
+                <span>Score: </span>
+                <span id="score-display" class="font-bold">0</span>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-lg p-2 text-white">
+                <span>Streak: </span>
+                <span id="streak-display" class="font-bold">0</span>
+            </div>
+        </div>
+
+        <!-- Pattern Display -->
+        <div id="pattern-container" class="pattern-container bg-indigo-900 bg-opacity-50 rounded-xl p-4 mb-4 flex-grow flex flex-col">
+            <div class="text-white text-center mb-3">
+                <p id="pattern-instruction" class="text-lg font-medium">Find the pattern and select the next element</p>
+            </div>
+            <div id="pattern-display" class="grid grid-cols-3 gap-3 mb-4 flex-grow"></div>
+            <div id="options-container" class="grid grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="flex justify-between gap-2 mb-2">
+            <button id="hint-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                Hint
+            </button>
+            <button id="skip-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                Skip
+            </button>
+        </div>
+        
+        <!-- Bottom Menu -->
+        <div class="flex justify-between gap-2">
+            <button id="rules-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                Rules
+            </button>
+            <button id="settings-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="fixed inset-0 flex items-center justify-center z-50 modal hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-900">How to Play</h2>
+            <div class="mb-4">
+                <p class="mb-2">Quantum Patterns is a puzzle game that challenges your ability to recognize patterns and think creatively.</p>
+                <p class="mb-2">Each puzzle presents a sequence of elements following a hidden pattern. Your task is to identify the pattern and select the next element in the sequence.</p>
+                <p class="mb-2">As you progress, patterns become more complex and may involve:</p>
+                <ul class="list-disc pl-5 mb-2">
+                    <li>Colors and shapes</li>
+                    <li>Mathematical sequences</li>
+                    <li>Rotations and reflections</li>
+                    <li>Hidden rules that change between levels</li>
+                </ul>
+                <p class="mb-2">Think outside the box! Sometimes the pattern isn't what it first appears to be.</p>
+            </div>
+            <button id="close-rules" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg w-full">
+                Got it!
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 flex items-center justify-center z-50 modal hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-900">Settings</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Difficulty</label>
+                <select id="difficulty-select" class="w-full p-2 border border-gray-300 rounded-lg">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="genius">Genius</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Sound</label>
+                <div class="flex items-center">
+                    <input type="checkbox" id="sound-toggle" class="mr-2 h-5 w-5">
+                    <span>Enable sound effects</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="reset-progress" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                    Reset Progress
+                </button>
+                <button id="close-settings" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg flex-grow">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div id="level-complete-modal" class="fixed inset-0 flex items-center justify-center z-50 modal hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4 text-center">
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 class="text-2xl font-bold mb-2 text-indigo-900">Level Complete!</h2>
+            <p id="level-complete-message" class="mb-4">You've solved the pattern!</p>
+            <div id="level-stats" class="mb-4 bg-gray-100 p-3 rounded-lg">
+                <div class="flex justify-between mb-2">
+                    <span>Score:</span>
+                    <span id="level-score" class="font-bold">+100</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Current Streak:</span>
+                    <span id="level-streak" class="font-bold">3</span>
+                </div>
+            </div>
+            <button id="next-level" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg w-full">
+                Next Level
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game state
+            const gameState = {
+                level: 1,
+                score: 0,
+                streak: 0,
+                difficulty: 'medium',
+                soundEnabled: false,
+                hintsUsed: 0,
+                skipsUsed: 0,
+                currentPattern: [],
+                currentOptions: [],
+                correctAnswer: null,
+                patternType: null
+            };
+
+            // DOM elements
+            const levelDisplay = document.getElementById('level-display');
+            const scoreDisplay = document.getElementById('score-display');
+            const streakDisplay = document.getElementById('streak-display');
+            const patternDisplay = document.getElementById('pattern-display');
+            const optionsContainer = document.getElementById('options-container');
+            const patternInstruction = document.getElementById('pattern-instruction');
+            const hintBtn = document.getElementById('hint-btn');
+            const skipBtn = document.getElementById('skip-btn');
+            const rulesBtn = document.getElementById('rules-btn');
+            const settingsBtn = document.getElementById('settings-btn');
+            const rulesModal = document.getElementById('rules-modal');
+            const settingsModal = document.getElementById('settings-modal');
+            const levelCompleteModal = document.getElementById('level-complete-modal');
+            const closeRules = document.getElementById('close-rules');
+            const closeSettings = document.getElementById('close-settings');
+            const nextLevel = document.getElementById('next-level');
+            const difficultySelect = document.getElementById('difficulty-select');
+            const soundToggle = document.getElementById('sound-toggle');
+            const resetProgress = document.getElementById('reset-progress');
+            const levelScore = document.getElementById('level-score');
+            const levelStreak = document.getElementById('level-streak');
+            const levelCompleteMessage = document.getElementById('level-complete-message');
+
+            // Pattern generators
+            const patternGenerators = {
+                // Color pattern - sequence of colors
+                colorPattern: function(level) {
+                    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 
+                                   'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'];
+                    const pattern = [];
+                    const patternLength = Math.min(3 + Math.floor(level / 2), 8);
+                    
+                    if (level <= 3) {
+                        // Simple repeating pattern
+                        const repeatLength = 2 + (level % 2);
+                        const basePattern = [];
+                        for (let i = 0; i < repeatLength; i++) {
+                            basePattern.push(colors[Math.floor(Math.random() * 4)]);
+                        }
+                        
+                        for (let i = 0; i < patternLength; i++) {
+                            pattern.push(basePattern[i % repeatLength]);
+                        }
+                        
+                        return {
+                            pattern,
+                            nextElement: basePattern[patternLength % repeatLength],
+                            options: generateOptions(colors.slice(0, 4), basePattern[patternLength % repeatLength])
+                        };
+                    } else {
+                        // More complex patterns
+                        const usedColors = colors.slice(0, Math.min(4 + Math.floor(level / 2), colors.length));
+                        
+                        if (level % 5 === 0) {
+                            // Every 5th level: alternating pattern with a twist
+                            for (let i = 0; i < patternLength; i++) {
+                                if (i % 3 === 2) {
+                                    // Every third element is special
+                                    pattern.push(usedColors[(i / 3) % usedColors.length]);
+                                } else {
+                                    pattern.push(usedColors[i % 2]);
+                                }
+                            }
+                            
+                            let nextIndex;
+                            if (patternLength % 3 === 2) {
+                                nextIndex = (Math.floor(patternLength / 3)) % usedColors.length;
+                                return {
+                                    pattern,
+                                    nextElement: usedColors[nextIndex],
+                                    options: generateOptions(usedColors, usedColors[nextIndex])
+                                };
+                            } else {
+                                return {
+                                    pattern,
+                                    nextElement: usedColors[patternLength % 2],
+                                    options: generateOptions(usedColors, usedColors[patternLength % 2])
+                                };
+                            }
+                        } else {
+                            // Fibonacci-like pattern (each color is determined by previous two)
+                            const colorIndices = [];
+                            for (let i = 0; i < 2; i++) {
+                                colorIndices.push(Math.floor(Math.random() * usedColors.length));
+                            }
+                            
+                            pattern.push(usedColors[colorIndices[0]]);
+                            pattern.push(usedColors[colorIndices[1]]);
+                            
+                            for (let i = 2; i < patternLength; i++) {
+                                const nextIndex = (colorIndices[i-1] + colorIndices[i-2]) % usedColors.length;
+                                colorIndices.push(nextIndex);
+                                pattern.push(usedColors[nextIndex]);
+                            }
+                            
+                            const nextIndex = (colorIndices[patternLength-1] + colorIndices[patternLength-2]) % usedColors.length;
+                            return {
+                                pattern,
+                                nextElement: usedColors[nextIndex],
+                                options: generateOptions(usedColors, usedColors[nextIndex])
+                            };
+                        }
+                    }
+                },
+                
+                // Shape pattern - sequence of shapes
+                shapePattern: function(level) {
+                    const shapes = [
+                        '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="30,10 70,10 90,50 70,90 30,90 10,50" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="10,30 50,10 90,30 90,70 50,90 10,70" fill="currentColor"/></svg>'
+                    ];
+                    
+                    const pattern = [];
+                    const patternLength = Math.min(3 + Math.floor(level / 3), 7);
+                    const usedShapes = shapes.slice(0, Math.min(3 + Math.floor(level / 4), shapes.length));
+                    
+                    if (level <= 3) {
+                        // Simple alternating pattern
+                        for (let i = 0; i < patternLength; i++) {
+                            pattern.push(usedShapes[i % usedShapes.length]);
+                        }
+                        
+                        return {
+                            pattern,
+                            nextElement: usedShapes[patternLength % usedShapes.length],
+                            options: generateOptions(usedShapes, usedShapes[patternLength % usedShapes.length])
+                        };
+                    } else if (level <= 6) {
+                        // Skip pattern (every other shape)
+                        const skip = 1 + (level % 2);
+                        let index = 0;
+                        
+                        for (let i = 0; i < patternLength; i++) {
+                            pattern.push(usedShapes[index % usedShapes.length]);
+                            index += skip;
+                        }
+                        
+                        return {
+                            pattern,
+                            nextElement: usedShapes[(index) % usedShapes.length],
+                            options: generateOptions(usedShapes, usedShapes[(index) % usedShapes.length])
+                        };
+                    } else {
+                        // Complex pattern based on position
+                        for (let i = 0; i < patternLength; i++) {
+                            const shapeIndex = (i * i + i) % usedShapes.length;
+                            pattern.push(usedShapes[shapeIndex]);
+                        }
+                        
+                        const nextIndex = (patternLength * patternLength + patternLength) % usedShapes.length;
+                        return {
+                            pattern,
+                            nextElement: usedShapes[nextIndex],
+                            options: generateOptions(usedShapes, usedShapes[nextIndex])
+                        };
+                    }
+                },
+                
+                // Combined pattern - both color and shape change
+                combinedPattern: function(level) {
+                    const colors = ['text-red-500', 'text-blue-500', 'text-green-500', 'text-yellow-500', 
+                                   'text-purple-500', 'text-pink-500', 'text-indigo-500', 'text-teal-500'];
+                    const shapes = [
+                        '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="currentColor"/></svg>',
+                        '<svg viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="currentColor"/></svg>'
+                    ];
+                    
+                    const pattern = [];
+                    const patternLength = Math.min(3 + Math.floor(level / 4), 6);
+                    
+                    const usedColors = colors.slice(0, Math.min(4 + Math.floor(level / 3), colors.length));
+                    const usedShapes = shapes.slice(0, Math.min(2 + Math.floor(level / 4), shapes.length));
+                    
+                    if (level <= 5) {
+                        // Color changes, shape stays the same for a while, then changes
+                        const selectedShape = usedShapes[Math.floor(Math.random() * usedShapes.length)];
+                        
+                        for (let i = 0; i < patternLength; i++) {
+                            const colorIndex = i % usedColors.length;
+                            const shapeToUse = (i >= patternLength/2) ? usedShapes[i % usedShapes.length] : selectedShape;
+                            pattern.push({
+                                color: usedColors[colorIndex],
+                                shape: shapeToUse
+                            });
+                        }
+                        
+                        const nextColorIndex = patternLength % usedColors.length;
+                        const nextShape = (patternLength >= patternLength/2) ? 
+                                        usedShapes[patternLength % usedShapes.length] : selectedShape;
+                        
+                        const nextElement = {
+                            color: usedColors[nextColorIndex],
+                            shape: nextShape
+                        };
+                        
+                        const options = [];
+                        // Generate options with different colors and shapes
+                        for (let i = 0; i < 6; i++) {
+                            if (i === 0) {
+                                options.push(nextElement); // Correct answer
+                            } else {
+                                const randomColor = usedColors[Math.floor(Math.random() * usedColors.length)];
+                                const randomShape = usedShapes[Math.floor(Math.random() * usedShapes.length)];
+                                // Ensure we don't duplicate the correct answer
+                                if (randomColor === nextElement.color && randomShape === nextElement.shape) {
+                                    options.push({
+                                        color: usedColors[(usedColors.indexOf(randomColor) + 1) % usedColors.length],
+                                        shape: randomShape
+                                    });
+                                } else {
+                                    options.push({
+                                        color: randomColor,
+                                        shape: randomShape
+                                    });
+                                }
+                            }
+                        }
+                        
+                        // Shuffle options
+                        shuffleArray(options);
+                        
+                        return {
+                            pattern,
+                            nextElement,
+                            options
+                        };
+                    } else {
+                        // More complex pattern where both color and shape follow different rules
+                        for (let i = 0; i < patternLength; i++) {
+                            const colorIndex = (i * 2) % usedColors.length;
+                            const shapeIndex = (i + Math.floor(i/2)) % usedShapes.length;
+                            
+                            pattern.push({
+                                color: usedColors[colorIndex],
+                                shape: usedShapes[shapeIndex]
+                            });
+                        }
+                        
+                        const nextColorIndex = (patternLength * 2) % usedColors.length;
+                        const nextShapeIndex = (patternLength + Math.floor(patternLength/2)) % usedShapes.length;
+                        
+                        const nextElement = {
+                            color: usedColors[nextColorIndex],
+                            shape: usedShapes[nextShapeIndex]
+                        };
+                        
+                        const options = [];
+                        // Generate options with different colors and shapes
+                        for (let i = 0; i < 6; i++) {
+                            if (i === 0) {
+                                options.push(nextElement); // Correct answer
+                            } else {
+                                const randomColor = usedColors[Math.floor(Math.random() * usedColors.length)];
+                                const randomShape = usedShapes[Math.floor(Math.random() * usedShapes.length)];
+                                // Ensure we don't duplicate the correct answer
+                                if (randomColor === nextElement.color && randomShape === nextElement.shape) {
+                                    options.push({
+                                        color: usedColors[(usedColors.indexOf(randomColor) + 1) % usedColors.length],
+                                        shape: randomShape
+                                    });
+                                } else {
+                                    options.push({
+                                        color: randomColor,
+                                        shape: randomShape
+                                    });
+                                }
+                            }
+                        }
+                        
+                        // Shuffle options
+                        shuffleArray(options);
+                        
+                        return {
+                            pattern,
+                            nextElement,
+                            options
+                        };
+                    }
+                },
+                
+                // Number pattern - mathematical sequence
+                numberPattern: function(level) {
+                    const pattern = [];
+                    const patternLength = Math.min(4 + Math.floor(level / 3), 8);
+                    
+                    if (level <= 3) {
+                        // Simple arithmetic progression
+                        const start = Math.floor(Math.random() * 5) + 1;
+                        const increment = Math.floor(Math.random() * 3) + 1;
+                        
+                        for (let i = 0; i < patternLength; i++) {
+                            pattern.push(start + i * increment);
+                        }
+                        
+                        const nextElement = start + patternLength * increment;
+                        const options = generateNumberOptions(nextElement, 10);
+                        
+                        return {
+                            pattern,
+                            nextElement,
+                            options
+                        };
+                    } else if (level <= 6) {
+                        // Fibonacci-like sequence
+                        let a = Math.floor(Math.random() * 5) + 1;
+                        let b = Math.floor(Math.random() * 5) + 1;
+                        
+                        pattern.push(a);
+                        pattern.push(b);
+                        
+                        for (let i = 2; i < patternLength; i++) {
+                            const next = a + b;
+                            pattern.push(next);
+                            a = b;
+                            b = next;
+                        }
+                        
+                        const nextElement = a + b;
+                        const options = generateNumberOptions(nextElement, 20);
+                        
+                        return {
+                            pattern,
+                            nextElement,
+                            options
+                        };
+                    } else {
+                        // More complex sequence
+                        const type = Math.floor(Math.random() * 3);
+                        
+                        if (type === 0) {
+                            // Quadratic sequence
+                            const a = Math.floor(Math.random() * 2) + 1;
+                            const b = Math.floor(Math.random() * 3);
+                            const c = Math.floor(Math.random() * 5) + 1;
+                            
+                            for (let i = 0; i < patternLength; i++) {
+                                pattern.push(a * i * i + b * i + c);
+                            }
+                            
+                            const nextElement = a * patternLength * patternLength + b * patternLength + c;
+                            const options = generateNumberOptions(nextElement, 30);
+                            
+                            return {
+                                pattern,
+                                nextElement,
+                                options
+                            };
+                        } else if (type === 1) {
+                            // Alternating increments
+                            const start = Math.floor(Math.random() * 5) + 1;
+                            const increments = [
+                                Math.floor(Math.random() * 3) + 1,
+                                Math.floor(Math.random() * 3) + 2
+                            ];
+                            
+                            let current = start;
+                            pattern.push(current);
+                            
+                            for (let i = 0; i < patternLength - 1; i++) {
+                                current += increments[i % increments.length];
+                                pattern.push(current);
+                            }
+                            
+                            const nextElement = current + increments[patternLength % increments.length];
+                            const options = generateNumberOptions(nextElement, 20);
+                            
+                            return {
+                                pattern,
+                                nextElement,
+                                options
+                            };
+                        } else {
+                            // Multiplicative sequence
+                            const start = Math.floor(Math.random() * 3) + 1;
+                            const multiplier = Math.floor(Math.random() * 2) + 2;
+                            
+                            let current = start;
+                            pattern.push(current);
+                            
+                            for (let i = 0; i < patternLength - 1; i++) {
+                                if (i % 3 === 2) {
+                                    // Every third element adds instead of multiplies
+                                    current += multiplier;
+                                } else {
+                                    current *= multiplier;
+                                }
+                                pattern.push(current);
+                            }
+                            
+                            let nextElement;
+                            if ((patternLength - 1) % 3 === 2) {
+                                nextElement = current + multiplier;
+                            } else {
+                                nextElement = current * multiplier;
+                            }
+                            
+                            const options = generateNumberOptions(nextElement, 50);
+                            
+                            return {
+                                pattern,
+                                nextElement,
+                                options
+                            };
+                        }
+                    }
+                },
+                
+                // Position pattern - elements change position in a pattern
+                positionPattern: function(level) {
+                    const positions = ['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0', 
+                                      'top-0 left-1/2 -translate-x-1/2', 'left-0 top-1/2 -translate-y-1/2',
+                                      'right-0 top-1/2 -translate-y-1/2', 'bottom-0 left-1/2 -translate-x-1/2',
+                                      'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'];
+                    
+                    const pattern = [];
+                    const patternLength = Math.min(4 + Math.floor(level / 4), 7);
+                    
+                    if (level <= 4) {
+                        // Simple clockwise or counter-clockwise rotation
+                        const clockwise = Math.random() > 0.5;
+                        const cornerPositions = positions.slice(0, 4);
+                        let startPos = Math.floor(Math.random() * 4);
+                        
+                        for (let i = 0; i < patternLength; i++) {
+                            const posIndex = (clockwise) ? 
+                                (startPos + i) % 4 : 
+                                (startPos - i + 40) % 4; // Adding 40 to avoid negative numbers
+                            pattern.push(cornerPositions[posIndex]);
+                        }
+                        
+                        const nextPosIndex = (clockwise) ? 
+                            (startPos + patternLength) % 4 : 
+                            (startPos - patternLength + 40) % 4;
+                        
+                        return {
+                            pattern,
+                            nextElement: cornerPositions[nextPosIndex],
+                            options: generateOptions(cornerPositions, cornerPositions[nextPosIndex])
+                        };
+                    } else {
+                        // More complex pattern
+                        const usedPositions = positions.slice(0, Math.min(5 + Math.floor(level / 2), positions.length));
+                        
+                        if (level % 3 === 0) {
+                            // Pattern that skips positions
+                            const skip = 1 + (level % 3);
+                            let index = Math.floor(Math.random() * usedPositions.length);
+                            
+                            for (let i = 0; i < patternLength; i++) {
+                                pattern.push(usedPositions[index % usedPositions.length]);
+                                index = (index + skip) % usedPositions.length;
+                            }
+                            
+                            return {
+                                pattern,
+                                nextElement: usedPositions[index % usedPositions.length],
+                                options: generateOptions(usedPositions, usedPositions[index % usedPositions.length])
+                            };
+                        } else {
+                            // Pattern based on position index math
+                            const indices = [];
+                            indices.push(Math.floor(Math.random() * usedPositions.length));
+                            indices.push((indices[0] + 2) % usedPositions.length);
+                            
+                            pattern.push(usedPositions[indices[0]]);
+                            pattern.push(usedPositions[indices[1]]);
+                            
+                            for (let i = 2; i < patternLength; i++) {
+                                // Next position is determined by a formula based on previous positions
+                                const nextIndex = (indices[i-1] + indices[i-2]) % usedPositions.length;
+                                indices.push(nextIndex);
+                                pattern.push(usedPositions[nextIndex]);
+                            }
+                            
+                            const nextIndex = (indices[patternLength-1] + indices[patternLength-2]) % usedPositions.length;
+                            
+                            return {
+                                pattern,
+                                nextElement: usedPositions[nextIndex],
+                                options: generateOptions(usedPositions, usedPositions[nextIndex])
+                            };
+                        }
+                    }
+                }
+            };
+
+            // Helper functions
+            function generateOptions(items, correctAnswer) {
+                const options = [correctAnswer];
+                
+                // Add incorrect options
+                while (options.length < 6) {
+                    const randomItem = items[Math.floor(Math.random() * items.length)];
+                    if (!options.includes(randomItem)) {
+                        options.push(randomItem);
+                    }
+                }
+                
+                shuffleArray(options);
+                return options;
+            }
+            
+            function generateNumberOptions(correctAnswer, range) {
+                const options = [correctAnswer];
+                
+                // Add incorrect options
+                while (options.length < 6) {
+                    let offset = Math.floor(Math.random() * range) - Math.floor(range / 2);
+                    if (offset === 0) offset = 1;
+                    
+                    const randomNumber = correctAnswer + offset;
+                    if (!options.includes(randomNumber) && randomNumber > 0) {
+                        options.push(randomNumber);
+                    }
+                }
+                
+                shuffleArray(options);
+                return options;
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // Generate a new pattern based on the current level
+            function generatePattern() {
+                const patternTypes = ['colorPattern', 'shapePattern', 'numberPattern', 'positionPattern'];
+                
+                // Add combined pattern for higher levels
+                if (gameState.level > 5) {
+                    patternTypes.push('combinedPattern');
+                }
+                
+                // Select a pattern type
+                let patternType;
+                if (gameState.level % 5 === 0) {
+                    // Every 5th level, use a combined pattern if available
+                    patternType = gameState.level >= 5 ? 'combinedPattern' : patternTypes[Math.floor(Math.random() * patternTypes.length)];
+                } else {
+                    patternType = patternTypes[Math.floor(Math.random() * patternTypes.length)];
+                }
+                
+                gameState.patternType = patternType;
+                
+                // Generate the pattern
+                const patternData = patternGenerators[patternType](gameState.level);
+                gameState.currentPattern = patternData.pattern;
+                gameState.currentOptions = patternData.options;
+                gameState.correctAnswer = patternData.nextElement;
+                
+                // Update the UI
+                renderPattern();
+                renderOptions();
+            }
+
+            // Render the pattern on the screen
+            function renderPattern() {
+                patternDisplay.innerHTML = '';
+                
+                gameState.currentPattern.forEach((item, index) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'pattern-tile bg-white bg-opacity-20 rounded-lg flex items-center justify-center aspect-square';
+                    
+                    if (gameState.patternType === 'colorPattern') {
+                        tile.className += ` ${item}`;
+                    } else if (gameState.patternType === 'shapePattern') {
+                        tile.innerHTML = `<div class="w-3/4 h-3/4 text-white">${item}</div>`;
+                    } else if (gameState.patternType === 'combinedPattern') {
+                        tile.className += ` ${item.color}`;
+                        tile.innerHTML = `<div class="w-3/4 h-3/4">${item.shape}</div>`;
+                    } else if (gameState.patternType === 'numberPattern') {
+                        tile.innerHTML = `<span class="text-2xl font-bold text-white">${item}</span>`;
+                    } else if (gameState.patternType === 'positionPattern') {
+                        tile.className += ' relative';
+                        tile.innerHTML = `<div class="absolute ${item} w-4 h-4 bg-white rounded-full"></div>`;
+                    }
+                    
+                    patternDisplay.appendChild(tile);
+                });
+                
+                // Add question mark tile
+                const questionTile = document.createElement('div');
+                questionTile.className = 'pattern-tile bg-white bg-opacity-10 rounded-lg flex items-center justify-center aspect-square pulse';
+                questionTile.innerHTML = '<span class="text-3xl font-bold text-white">?</span>';
+                patternDisplay.appendChild(questionTile);
+            }
+
+            // Render the options
+            function renderOptions() {
+                optionsContainer.innerHTML = '';
+                
+                gameState.currentOptions.forEach((option, index) => {
+                    const optionTile = document.createElement('div');
+                    optionTile.className = 'game-tile bg-white bg-opacity-30 hover:bg-opacity-40 rounded-lg flex items-center justify-center aspect-square cursor-pointer';
+                    optionTile.dataset.index = index;
+                    
+                    if (gameState.patternType === 'colorPattern') {
+                        optionTile.className += ` ${option}`;
+                    } else if (gameState.patternType === 'shapePattern') {
+                        optionTile.innerHTML = `<div class="w-3/4 h-3/4 text-white">${option}</div>`;
+                    } else if (gameState.patternType === 'combinedPattern') {
+                        optionTile.className += ` ${option.color}`;
+                        optionTile.innerHTML = `<div class="w-3/4 h-3/4">${option.shape}</div>`;
+                    } else if (gameState.patternType === 'numberPattern') {
+                        optionTile.innerHTML = `<span class="text-2xl font-bold text-white">${option}</span>`;
+                    } else if (gameState.patternType === 'positionPattern') {
+                        optionTile.className += ' relative';
+                        optionTile.innerHTML = `<div class="absolute ${option} w-4 h-4 bg-white rounded-full"></div>`;
+                    }
+                    
+                    optionTile.addEventListener('click', () => handleOptionClick(option, optionTile));
+                    optionsContainer.appendChild(optionTile);
+                });
+            }
+
+            // Handle option click
+            function handleOptionClick(selectedOption, optionTile) {
+                const isCorrect = (
+                    gameState.patternType === 'combinedPattern' ? 
+                    (selectedOption.color === gameState.correctAnswer.color && 
+                     selectedOption.shape === gameState.correctAnswer.shape) : 
+                    selectedOption === gameState.correctAnswer
+                );
+                
+                if (isCorrect) {
+                    // Correct answer
+                    optionTile.classList.add('bg-green-500');
+                    gameState.streak++;
+                    gameState.score += 10 * gameState.level * (1 + gameState.streak / 10);
+                    
+                    // Update displays
+                    scoreDisplay.textContent = Math.floor(gameState.score);
+                    streakDisplay.textContent = gameState.streak;
+                    
+                    // Show level complete modal
+                    setTimeout(() => {
+                        levelScore.textContent = `+${Math.floor(10 * gameState.level * (1 + gameState.streak / 10))}`;
+                        levelStreak.textContent = gameState.streak;
+                        
+                        // Different messages based on streak
+                        if (gameState.streak >= 5) {
+                            levelCompleteMessage.textContent = `Amazing! You're on a ${gameState.streak} streak!`;
+                        } else if (gameState.streak >= 3) {
+                            levelCompleteMessage.textContent = `Great job! You're getting the hang of this!`;
+                        } else {
+                            levelCompleteMessage.textContent = `You've solved the pattern!`;
+                        }
+                        
+                        levelCompleteModal.classList.remove('hidden');
+                    }, 800);
+                } else {
+                    // Incorrect answer
+                    optionTile.classList.add('bg-red-500', 'shake');
+                    gameState.streak = 0;
+                    streakDisplay.textContent = gameState.streak;
+                    
+                    // Remove the shake class after animation completes
+                    setTimeout(() => {
+                        optionTile.classList.remove('shake');
+                    }, 500);
+                }
+            }
+
+            // Start a new level
+            function startNewLevel() {
+                gameState.level++;
+                levelDisplay.textContent = gameState.level;
+                gameState.hintsUsed = 0;
+                
+                // Update instruction based on level
+                if (gameState.level <= 3) {
+                    patternInstruction.textContent = "Find the pattern and select the next element";
+                } else if (gameState.level <= 7) {
+                    patternInstruction.textContent = "What comes next in this sequence?";
+                } else {
+                    patternInstruction.textContent = "Discover the hidden pattern";
+                }
+                
+                generatePattern();
+            }
+
+            // Provide a hint
+            function provideHint() {
+                if (gameState.hintsUsed < 2) {
+                    gameState.hintsUsed++;
+                    
+                    // Find incorrect options and disable some of them
+                    const optionElements = optionsContainer.querySelectorAll('.game-tile');
+                    const incorrectOptions = Array.from(optionElements).filter(option => {
+                        const index = parseInt(option.dataset.index);
+                        const selectedOption = gameState.currentOptions[index];
+                        
+                        if (gameState.patternType === 'combinedPattern') {
+                            return !(selectedOption.color === gameState.correctAnswer.color && 
+                                    selectedOption.shape === gameState.correctAnswer.shape);
+                        } else {
+                            return selectedOption !== gameState.correctAnswer;
+                        }
+                    });
+                    
+                    // Disable half of the incorrect options
+                    const numToDisable = Math.min(2, Math.floor(incorrectOptions.length / 2));
+                    shuffleArray(incorrectOptions);
+                    
+                    for (let i = 0; i < numToDisable; i++) {
+                        incorrectOptions[i].classList.add('opacity-50', 'pointer-events-none');
+                    }
+                    
+                    // Highlight the pattern to help user see it
+                    const patternTiles = patternDisplay.querySelectorAll('.pattern-tile:not(:last-child)');
+                    patternTiles.forEach(tile => {
+                        tile.classList.add('hint-highlight');
+                        setTimeout(() => {
+                            tile.classList.remove('hint-highlight');
+                        }, 2000);
+                    });
+                    
+                    // Reduce score for using hint
+                    gameState.score = Math.max(0, gameState.score - 5 * gameState.level);
+                    scoreDisplay.textContent = Math.floor(gameState.score);
+                } else {
+                    // No more hints available
+                    hintBtn.classList.add('shake');
+                    setTimeout(() => {
+                        hintBtn.classList.remove('shake');
+                    }, 500);
+                }
+            }
+
+            // Skip the current level
+            function skipLevel() {
+                gameState.streak = 0;
+                streakDisplay.textContent = gameState.streak;
+                gameState.skipsUsed++;
+                
+                // Reduce score for skipping
+                gameState.score = Math.max(0, gameState.score - 10 * gameState.level);
+                scoreDisplay.textContent = Math.floor(gameState.score);
+                
+                startNewLevel();
+            }
+
+            // Event listeners
+            hintBtn.addEventListener('click', provideHint);
+            skipBtn.addEventListener('click', skipLevel);
+            rulesBtn.addEventListener('click', () => rulesModal.classList.remove('hidden'));
+            settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+            closeRules.addEventListener('click', () => rulesModal.classList.add('hidden'));
+            closeSettings.addEventListener('click', () => {
+                gameState.difficulty = difficultySelect.value;
+                gameState.soundEnabled = soundToggle.checked;
+                settingsModal.classList.add('hidden');
+            });
+            nextLevel.addEventListener('click', () => {
+                levelCompleteModal.classList.add('hidden');
+                startNewLevel();
+            });
+            resetProgress.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                    gameState.level = 0;
+                    gameState.score = 0;
+                    gameState.streak = 0;
+                    levelDisplay.textContent = '1';
+                    scoreDisplay.textContent = '0';
+                    streakDisplay.textContent = '0';
+                    settingsModal.classList.add('hidden');
+                    startNewLevel();
+                }
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', (event) => {
+                if (event.target.classList.contains('modal')) {
+                    event.target.classList.add('hidden');
+                }
+            });
+
+            // Start the game
+            startNewLevel();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'956114f2f66300f8',t:'MTc1MDk4NjgwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

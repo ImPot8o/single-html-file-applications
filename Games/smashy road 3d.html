@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!-- by ImPot8o https://github.com/ImPot8o pot8o.dev -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Smashy Road</title>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#111;height:100%}
+#score{position:absolute;top:10px;left:10px;color:#fff;font-family:sans-serif;font-size:20px;z-index:10}
+#gameOver{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:sans-serif;font-size:40px;display:none;z-index:10;text-align:center}
+.touch-controls{position:absolute;bottom:20px;width:100%;display:flex;justify-content:space-between;z-index:10}
+.btn{width:100px;height:100px;background:rgba(255,255,255,0.1);border:2px solid #fff;border-radius:50%;color:#fff;font-size:40px;display:flex;align-items:center;justify-content:center;user-select:none}
+.btn:active{background:rgba(255,255,255,0.3)}
+</style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<div id="gameOver">Game Over<br><small>Refresh to restart</small></div>
+<div class="touch-controls">
+  <div id="leftBtn" class="btn">⟵</div>
+  <div id="rightBtn" class="btn">⟶</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+localStorage.setItem('pot8o watermark', `${localStorage.getItem('pot8o watermark') || ''} smashy-road-3d`);
+let scene,camera,renderer,car,road,obstacles=[],score=0,speed=0.2,gameOver=false;
+const scoreEl=document.getElementById('score');
+const gameOverEl=document.getElementById('gameOver');
+init();
+animate();
+
+function init(){
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x222222);
+camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const light=new THREE.DirectionalLight(0xffffff,1);
+light.position.set(5,10,7.5);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0x404040));
+
+const roadGeo=new THREE.BoxGeometry(10,0.1,200);
+const roadMat=new THREE.MeshStandardMaterial({color:0x333333});
+road=new THREE.Mesh(roadGeo,roadMat);
+road.position.z=-100;
+scene.add(road);
+
+const carGeo=new THREE.BoxGeometry(1,0.5,2);
+const carMat=new THREE.MeshStandardMaterial({color:0xff0000});
+car=new THREE.Mesh(carGeo,carMat);
+car.position.y=0.5;
+scene.add(car);
+
+camera.position.set(0,5,5);
+camera.lookAt(car.position);
+
+window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+document.addEventListener('keydown',onKeyDown);
+
+// Touch controls
+document.getElementById('leftBtn').addEventListener('touchstart',()=>moveCar(-1));
+document.getElementById('rightBtn').addEventListener('touchstart',()=>moveCar(1));
+}
+
+function onKeyDown(e){
+if(gameOver)return;
+if(e.key==='ArrowLeft')moveCar(-1);
+if(e.key==='ArrowRight')moveCar(1);
+}
+
+function moveCar(dir){
+if(gameOver)return;
+camera.position.x=Math.max(-4,Math.min(4,car.position.x+dir*2));
+car.position.x=camera.position.x
+}
+
+function spawnObstacle(){
+const obsGeo=new THREE.BoxGeometry(1,1,1);
+const obsMat=new THREE.MeshStandardMaterial({color:0x00ff00});
+const obs=new THREE.Mesh(obsGeo,obsMat);
+obs.position.set((Math.floor(Math.random()*5)-2)*2,0.5,car.position.z-100);
+scene.add(obs);
+obstacles.push(obs);
+}
+
+function animate(){
+if(!gameOver)requestAnimationFrame(animate);
+road.position.z+=speed;
+if(road.position.z>0)road.position.z=-100;
+
+if(Math.random()<(0.02+(score/1000)))spawnObstacle();
+
+for(let i=obstacles.length-1;i>=0;i--){
+obstacles[i].position.z+=speed*10;
+if(obstacles[i].position.z>car.position.z+5){
+scene.remove(obstacles[i]);
+obstacles.splice(i,1);
+score++;
+scoreEl.textContent='Score: '+score;
+}
+else if(Math.abs(obstacles[i].position.x-car.position.x)<1 && Math.abs(obstacles[i].position.z-car.position.z)<1){
+gameOver=true;
+gameOverEl.style.display='block';
+}
+}
+
+camera.position.z=car.position.z+5;
+camera.lookAt(car.position);
+renderer.render(scene,camera);
+}
+</script>
+</body>
+</html>

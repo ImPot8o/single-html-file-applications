@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Physics Sandbox</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0c0c0c, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100%;
+            touch-action: none;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 6px;
+            text-align: center;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3) drop-shadow(0 0 10px rgba(78, 205, 196, 0.5)); }
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 4px;
+            margin-top: 6px;
+            max-width: 100%;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 4px 6px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.6);
+            animation: activeGlow 2s infinite;
+        }
+
+        @keyframes activeGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(78, 205, 196, 0.6); }
+            50% { box-shadow: 0 0 25px rgba(78, 205, 196, 0.9); }
+        }
+
+        /* Material-specific button colors */
+        .control-btn.sand { background: linear-gradient(135deg, #d4a574 0%, #c49b61 100%); }
+        .control-btn.water { background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%); }
+        .control-btn.stone { background: linear-gradient(135deg, #8c8c8c 0%, #595959 100%); }
+        .control-btn.fire { background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%); }
+        .control-btn.oil { background: linear-gradient(135deg, #2c2c54 0%, #1a1a2e 100%); }
+        .control-btn.smoke { background: linear-gradient(135deg, #636e72 0%, #2d3436 100%); }
+        .control-btn.acid { background: linear-gradient(135deg, #00b894 0%, #00a085 100%); }
+        .control-btn.ice { background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); }
+        .control-btn.lava { background: linear-gradient(135deg, #e17055 0%, #d63031 100%); }
+        .control-btn.metal { background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%); }
+        .control-btn.electric { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); }
+        .control-btn.magnet { background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); }
+        .control-btn.plant { background: linear-gradient(135deg, #00b894 0%, #55a3ff 100%); }
+        .control-btn.explosive { background: linear-gradient(135deg, #ff7675 0%, #d63031 100%); }
+        .control-btn.glass { background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #sandCanvas {
+            display: block;
+            background: linear-gradient(180deg, #87ceeb 0%, #4682b4 50%, #2f4f4f 100%);
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            max-width: 200px;
+        }
+
+        .controls-panel {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .brush-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            color: white;
+            font-size: 10px;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .slider {
+            width: 70px;
+            height: 3px;
+            background: #333;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-panel {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 9px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 8px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mode-panel {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 6px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 8px;
+            font-size: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: rgba(78, 205, 196, 0.8);
+        }
+
+        .particle-trail {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: trailFade 0.5s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+    </style>
+</head>
+<body>
+<div id="console" style="position:fixed;top:0;left:0;width:100%;height:200px;background:#000;color:#0f0;font-family:monospace;font-size:12px;overflow-y:scroll;z-index:9999;padding:10px;border-top:2px solid #333;"><div style="position:absolute;top:5px;right:10px;"><button onclick="document.getElementById('console').style.display='none';if(!document.getElementById('showConsole')){let btn=document.createElement('button');btn.id='showConsole';btn.innerHTML='CONSOLE';btn.onclick=function(){document.getElementById('console').style.display='block';this.remove();};btn.style.cssText='position:fixed;bottom:10px;right:10px;background:#333;color:#0f0;border:1px solid #0f0;padding:5px 10px;font-size:10px;cursor:pointer;z-index:10000;border-radius:3px;';document.body.appendChild(btn);}" style="background:#333;color:#0f0;border:1px solid #0f0;padding:2px 8px;font-size:10px;cursor:pointer;">HIDE</button> <button onclick="document.getElementById('consoleOutput').innerHTML='';window.consoleHistory=[];window.historyIndex=-1;" style="background:#333;color:#0f0;border:1px solid #0f0;padding:2px 8px;font-size:10px;cursor:pointer;">CLEAR</button> <button onclick="toggleConsolePosition()" style="background:#333;color:#0f0;border:1px solid #0f0;padding:2px 8px;font-size:10px;cursor:pointer;">TOGGLE</button></div><div id="consoleOutput" style="margin-top:25px;height:120px;overflow-y:scroll;"></div><div style="position:absolute;bottom:5px;left:10px;right:10px;display:flex;gap:2px;"><button onclick="let h=window.consoleHistory||[];let i=window.historyIndex||0;if(i<h.length-1){window.historyIndex=++i;document.getElementById('jsInput').value=h[h.length-1-i]||'';}" style="background:#333;color:#0f0;border:1px solid #0f0;padding:5px;font-size:10px;width:25px;">↑</button><input id="jsInput" placeholder="Enter JavaScript..." style="flex:1;background:#111;color:#0f0;border:1px solid #333;padding:5px;font-family:monospace;font-size:12px;" onkeypress="if(event.key==='Enter'){let cmd=this.value;if(cmd.trim()){window.consoleHistory=window.consoleHistory||[];window.consoleHistory.push(cmd);window.historyIndex=-1;}try{console.log('> '+cmd);let result=eval(cmd);if(result!==undefined){if(typeof result==='object'){console.log(JSON.stringify(result,null,2));}else{console.log(result);}}this.value='';}catch(e){console.log('ERROR: '+e.message);this.value='';}}"><button onclick="let h=window.consoleHistory||[];let i=window.historyIndex||0;if(i>-1){window.historyIndex=--i;document.getElementById('jsInput').value=h[h.length-1-i]||'';}" style="background:#333;color:#0f0;border:1px solid #0f0;padding:5px;font-size:10px;width:25px;">↓</button><button onclick="let input=document.getElementById('jsInput');let cmd=input.value;if(cmd.trim()){window.consoleHistory=window.consoleHistory||[];window.consoleHistory.push(cmd);window.historyIndex=-1;}try{console.log('> '+cmd);let result=eval(cmd);if(result!==undefined){if(typeof result==='object'){console.log(JSON.stringify(result,null,2));}else{console.log(result);}}input.value='';}catch(e){console.log('ERROR: '+e.message);input.value='';}" style="background:#333;color:#0f0;border:1px solid #0f0;padding:5px;font-size:10px;width:30px;">RUN</button></div></div><script>window.onerror=function(msg,url,line,col,error){document.getElementById('consoleOutput').innerHTML+='<span style="color:#f44">ERROR: '+msg+' (Line '+line+')</span><br>';document.getElementById('consoleOutput').scrollTop=document.getElementById('consoleOutput').scrollHeight;};console.log=function(msg){let timestamp=new Date().toLocaleTimeString();document.getElementById('consoleOutput').innerHTML+='<span style="color:#666">['+timestamp+']</span> '+msg+'<br>';document.getElementById('consoleOutput').scrollTop=document.getElementById('consoleOutput').scrollHeight;};window.consoleHistory=[];window.historyIndex=-1;function toggleConsolePosition() {const console = document.getElementById('console');if (console.style.top === '0px') {console.style.top = 'auto';console.style.bottom = '0';} else {console.style.top = '0';console.style.bottom = 'auto';}}</script>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="title">⚡ Ultimate Physics Sandbox ⚡</h1>
+            <div class="controls">
+                <button class="control-btn sand active" data-material="sand">Sand</button>
+                <button class="control-btn water" data-material="water">Water</button>
+                <button class="control-btn stone" data-material="stone">Stone</button>
+                <button class="control-btn fire" data-material="fire">Fire</button>
+                <button class="control-btn oil" data-material="oil">Oil</button>
+                <button class="control-btn smoke" data-material="smoke">Smoke</button>
+                <button class="control-btn acid" data-material="acid">Acid</button>
+                <button class="control-btn ice" data-material="ice">Ice</button>
+                <button class="control-btn lava" data-material="lava">Lava</button>
+                <button class="control-btn metal" data-material="metal">Metal</button>
+                <button class="control-btn electric" data-material="electric">⚡Elec</button>
+                <button class="control-btn magnet" data-material="magnet">🧲Mag</button>
+                <button class="control-btn plant" data-material="plant">🌱Plant</button>
+                <button class="control-btn explosive" data-material="explosive">💥Bomb</button>
+                <button class="control-btn glass" data-material="glass">Glass</button>
+                <button class="control-btn" data-material="eraser">Erase</button>
+                <button class="control-btn" onclick="clearCanvas()">Clear</button>
+                <button class="control-btn" onclick="togglePause()">⏸️</button>
+                <button class="control-btn" onclick="saveState()">💾</button>
+                <button class="control-btn" onclick="randomize()">🎲</button>
+            </div>
+        </header>
+        
+        <div class="canvas-container">
+            <canvas id="sandCanvas"></canvas>
+            
+            <div class="info-panel">
+                <div><strong>🎨 Ultimate Sandbox</strong></div>
+                <div>⚡ Electricity conducts through metal</div>
+                <div>🧲 Magnets attract metal particles</div>
+                <div>🌱 Plants grow and spread naturally</div>
+                <div>💥 Explosives create chain reactions</div>
+                <div>🌋 Lava cools into stone over time</div>
+                <div>🔥 Fire spreads through flammables</div>
+                <div id="particleCount">Particles: 0</div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="brush-controls">
+                    <div class="slider-group">
+                        <span>Size:</span>
+                        <input type="range" class="slider" id="brushSize" min="1" max="30" value="10">
+                        <span id="sizeValue">10</span>
+                    </div>
+                    <div class="slider-group">
+                        <span>Flow:</span>
+                        <input type="range" class="slider" id="flowRate" min="1" max="15" value="8">
+                        <span id="flowValue">8</span>
+                    </div>
+                    <div class="slider-group">
+                        <span>Wind:</span>
+                        <input type="range" class="slider" id="windForce" min="0" max="15" value="0">
+                        <span id="windValue">0</span>
+                    </div>
+                    <div class="slider-group">
+                        <span>Grav:</span>
+                        <input type="range" class="slider" id="gravity" min="0" max="20" value="10">
+                        <span id="gravValue">10</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-panel" id="statsPanel">
+                <div id="fpsCounter">FPS: 60</div>
+                <div id="tempDisplay">Temp: 20°C</div>
+                <div id="pressureDisplay">Pressure: 1.0</div>
+            </div>
+            
+            <div class="mode-panel">
+                <button class="mode-btn active" onclick="setMode('normal')">Normal</button>
+                <button class="mode-btn" onclick="setMode('heat')">Heat</button>
+                <button class="mode-btn" onclick="setMode('cool')">Cool</button>
+                <button class="mode-btn" onclick="setMode('pressure')">Press</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('sandCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Performance and state tracking
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 60;
+        let isPaused = false;
+        let currentMode = 'normal';
+        
+        // Set canvas size to fill screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 70;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Enhanced physics constants
+        const CELL_SIZE = 2;
+        const COLS = Math.floor(canvas.width / CELL_SIZE);
+        const ROWS = Math.floor(canvas.height / CELL_SIZE);
+        
+        // Comprehensive material system
+        const MATERIALS = {
+            EMPTY: 0, SAND: 1, WATER: 2, STONE: 3, FIRE: 4, OIL: 5, SMOKE: 6, ACID: 7, 
+            ICE: 8, STEAM: 9, LAVA: 10, METAL: 11, ELECTRIC: 12, MAGNET: 13, PLANT: 14, 
+            EXPLOSIVE: 15, GLASS: 16, SPARK: 17, PLASMA: 18, CONCRETE: 19
+        };
+        
+        const MATERIAL_PROPS = {
+            [MATERIALS.EMPTY]: { density: 0, flammable: false, meltPoint: 0, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.SAND]: { density: 3, flammable: false, meltPoint: 1000, dissolves: true, conductive: false, magnetic: false },
+            [MATERIALS.WATER]: { density: 1, flammable: false, meltPoint: 0, dissolves: false, conductive: true, magnetic: false },
+            [MATERIALS.STONE]: { density: 5, flammable: false, meltPoint: 1500, dissolves: true, conductive: false, magnetic: false },
+            [MATERIALS.FIRE]: { density: 0, flammable: false, meltPoint: 0, dissolves: false, conductive: false, magnetic: false, lifetime: 80 },
+            [MATERIALS.OIL]: { density: 0.8, flammable: true, meltPoint: 0, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.SMOKE]: { density: 0.1, flammable: false, meltPoint: 0, dissolves: false, conductive: false, magnetic: false, lifetime: 150 },
+            [MATERIALS.ACID]: { density: 1.2, flammable: false, meltPoint: 0, dissolves: false, conductive: true, magnetic: false },
+            [MATERIALS.ICE]: { density: 0.9, flammable: false, meltPoint: 32, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.STEAM]: { density: 0.05, flammable: false, meltPoint: 0, dissolves: false, conductive: false, magnetic: false, lifetime: 100 },
+            [MATERIALS.LAVA]: { density: 2.5, flammable: false, meltPoint: 0, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.METAL]: { density: 7, flammable: false, meltPoint: 1200, dissolves: true, conductive: true, magnetic: true },
+            [MATERIALS.ELECTRIC]: { density: 0, flammable: false, meltPoint: 0, dissolves: false, conductive: true, magnetic: false, lifetime: 30 },
+            [MATERIALS.MAGNET]: { density: 6, flammable: false, meltPoint: 1000, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.PLANT]: { density: 0.5, flammable: true, meltPoint: 100, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.EXPLOSIVE]: { density: 2, flammable: true, meltPoint: 200, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.GLASS]: { density: 2.5, flammable: false, meltPoint: 800, dissolves: false, conductive: false, magnetic: false },
+            [MATERIALS.SPARK]: { density: 0, flammable: false, meltPoint: 0, dissolves: false, conductive: true, magnetic: false, lifetime: 15 },
+            [MATERIALS.PLASMA]: { density: 0.01, flammable: false, meltPoint: 0, dissolves: false, conductive: true, magnetic: false, lifetime: 60 },
+            [MATERIALS.CONCRETE]: { density: 4, flammable: false, meltPoint: 2000, dissolves: false, conductive: false, magnetic: false }
+        };
+        
+        // Enhanced color system with animations
+        const BASE_COLORS = {
+            [MATERIALS.EMPTY]: [135, 206, 235, 0],
+            [MATERIALS.SAND]: [194, 178, 128, 255],
+            [MATERIALS.WATER]: [64, 164, 223, 180],
+            [MATERIALS.STONE]: [105, 105, 105, 255],
+            [MATERIALS.FIRE]: [255, 69, 0, 255],
+            [MATERIALS.OIL]: [20, 20, 20, 200],
+            [MATERIALS.SMOKE]: [100, 100, 100, 150],
+            [MATERIALS.ACID]: [0, 255, 127, 200],
+            [MATERIALS.ICE]: [173, 216, 230, 220],
+            [MATERIALS.STEAM]: [255, 255, 255, 100],
+            [MATERIALS.LAVA]: [255, 100, 0, 255],
+            [MATERIALS.METAL]: [192, 192, 192, 255],
+            [MATERIALS.ELECTRIC]: [255, 255, 0, 255],
+            [MATERIALS.MAGNET]: [255, 20, 147, 255],
+            [MATERIALS.PLANT]: [34, 139, 34, 255],
+            [MATERIALS.EXPLOSIVE]: [255, 0, 0, 255],
+            [MATERIALS.GLASS]: [173, 216, 230, 150],
+            [MATERIALS.SPARK]: [255, 255, 255, 255],
+            [MATERIALS.PLASMA]: [138, 43, 226, 200],
+            [MATERIALS.CONCRETE]: [128, 128, 128, 255]
+        };
+        
+        // Enhanced grid system with multiple properties
+        let grid = Array(ROWS).fill().map(() => Array(COLS).fill().map(() => ({
+            material: MATERIALS.EMPTY,
+            lifetime: 0,
+            temperature: 20,
+            velocity: { x: 0, y: 0 },
+            charge: 0,
+            pressure: 1.0,
+            age: 0,
+            updated: false
+        })));
+        
+        let nextGrid = Array(ROWS).fill().map(() => Array(COLS).fill().map(() => ({
+            material: MATERIALS.EMPTY,
+            lifetime: 0,
+            temperature: 20,
+            velocity: { x: 0, y: 0 },
+            charge: 0,
+            pressure: 1.0,
+            age: 0,
+            updated: false
+        })));
+        
+        // Current settings
+        let currentMaterial = MATERIALS.SAND;
+        let brushSize = 10;
+        let flowRate = 8;
+        let windForce = 0;
+        let gravityStrength = 10;
+        let isDrawing = false;
+        let particleCount = 0;
+        let mouseTemp = 20;
+        
+        // Enhanced material selection
+        document.querySelectorAll('[data-material]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-material]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const material = e.target.dataset.material;
+                const materialMap = {
+                    'sand': MATERIALS.SAND, 'water': MATERIALS.WATER, 'stone': MATERIALS.STONE,
+                    'fire': MATERIALS.FIRE, 'oil': MATERIALS.OIL, 'smoke': MATERIALS.SMOKE,
+                    'acid': MATERIALS.ACID, 'ice': MATERIALS.ICE, 'lava': MATERIALS.LAVA,
+                    'metal': MATERIALS.METAL, 'electric': MATERIALS.ELECTRIC, 'magnet': MATERIALS.MAGNET,
+                    'plant': MATERIALS.PLANT, 'explosive': MATERIALS.EXPLOSIVE, 'glass': MATERIALS.GLASS,
+                    'eraser': MATERIALS.EMPTY
+                };
+                currentMaterial = materialMap[material] || MATERIALS.SAND;
+            });
+        });
+        
+        // Enhanced controls
+        const sliders = {
+            brushSize: document.getElementById('brushSize'),
+            flowRate: document.getElementById('flowRate'),
+            windForce: document.getElementById('windForce'),
+            gravity: document.getElementById('gravity')
+        };
+        
+        Object.entries(sliders).forEach(([name, slider]) => {
+            slider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                switch(name) {
+                    case 'brushSize': brushSize = value; break;
+                    case 'flowRate': flowRate = value; break;
+                    case 'windForce': windForce = value; break;
+                    case 'gravity': gravityStrength = value; break;
+                }
+                document.getElementById(name === 'brushSize' ? 'sizeValue' : 
+                                    name === 'flowRate' ? 'flowValue' : 
+                                    name === 'windForce' ? 'windValue' : 'gravValue').textContent = value;
+            });
+        });
+        
+        // Mode system
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(mode) {
+                case 'heat': mouseTemp = 200; break;
+                case 'cool': mouseTemp = -50; break;
+                case 'pressure': mouseTemp = 20; break;
+                default: mouseTemp = 20; break;
+            }
+        }
+        
+        // Utility functions
+        function clearCanvas() {
+            grid = Array(ROWS).fill().map(() => Array(COLS).fill().map(() => ({
+                material: MATERIALS.EMPTY, lifetime: 0, temperature: 20,
+                velocity: { x: 0, y: 0 }, charge: 0, pressure: 1.0, age: 0, updated: false
+            })));
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+            document.querySelector('[onclick="togglePause()"]').textContent = isPaused ? '▶️' : '⏸️';
+        }
+        
+        function saveState() {
+            const dataUrl = canvas.toDataURL();
+            const link = document.createElement('a');
+            link.download = 'ultimate-physics-sandbox.png';
+            link.href = dataUrl;
+            link.click();
+        }
+        
+        function randomize() {
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.floor(Math.random() * COLS);
+                const y = Math.floor(Math.random() * ROWS);
+                const materials = [MATERIALS.SAND, MATERIALS.WATER, MATERIALS.FIRE, MATERIALS.OIL, MATERIALS.PLANT];
+                const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+                
+                grid[y][x] = {
+                    material: randomMaterial,
+                    lifetime: MATERIAL_PROPS[randomMaterial]?.lifetime || 0,
+                    temperature: 20,
+                    velocity: { x: 0, y: 0 },
+                    charge: 0,
+                    pressure: 1.0,
+                    age: 0,
+                    updated: false
+                };
+            }
+        }
+        
+        // Enhanced input handling
+        function getGridPos(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((clientX - rect.left) / CELL_SIZE);
+            const y = Math.floor((clientY - rect.top) / CELL_SIZE);
+            return { x, y };
+        }
+        
+        function addParticles(x, y) {
+            const radius = brushSize;
+            const particlesToAdd = Math.ceil(flowRate / 3);
+            
+            for (let i = 0; i < particlesToAdd; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * radius;
+                const newX = Math.floor(x + Math.cos(angle) * distance);
+                const newY = Math.floor(y + Math.sin(angle) * distance);
+                
+                if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS) {
+                    if (grid[newY][newX].material === MATERIALS.EMPTY || currentMaterial === MATERIALS.EMPTY) {
+                        const baseTemp = currentMaterial === MATERIALS.FIRE ? 800 : 
+                                       currentMaterial === MATERIALS.ICE ? -10 :
+                                       currentMaterial === MATERIALS.LAVA ? 1200 : mouseTemp;
+                        
+                        grid[newY][newX] = {
+                            material: currentMaterial,
+                            lifetime: MATERIAL_PROPS[currentMaterial]?.lifetime || 0,
+                            temperature: baseTemp,
+                            velocity: { x: 0, y: 0 },
+                            charge: currentMaterial === MATERIALS.ELECTRIC ? 100 : 0,
+                            pressure: currentMode === 'pressure' ? 5.0 : 1.0,
+                            age: 0,
+                            updated: false
+                        };
+                        
+                        // Special effects for certain materials
+                        if (currentMaterial === MATERIALS.EXPLOSIVE) {
+                            // Add some instability
+                            grid[newY][newX].lifetime = 300 + Math.random() * 200;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Enhanced input events with trails
+        let lastMousePos = { x: 0, y: 0 };
+        
+        function createTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'particle-trail';
+            trail.style.left = (x * CELL_SIZE) + 'px';
+            trail.style.top = (y * CELL_SIZE) + 'px';
+            trail.style.width = '4px';
+            trail.style.height = '4px';
+            trail.style.background = `rgba(${BASE_COLORS[currentMaterial][0]}, ${BASE_COLORS[currentMaterial][1]}, ${BASE_COLORS[currentMaterial][2]}, 0.8)`;
+            document.querySelector('.canvas-container').appendChild(trail);
+            
+            setTimeout(() => trail.remove(), 500);
+        }
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const pos = getGridPos(e.clientX, e.clientY);
+            lastMousePos = pos;
+            addParticles(pos.x, pos.y);
+            createTrail(pos.x, pos.y);
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) {
+                const pos = getGridPos(e.clientX, e.clientY);
+                const dx = pos.x - lastMousePos.x;
+                const dy = pos.y - lastMousePos.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const steps = Math.max(1, Math.floor(distance));
+                
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const interpX = Math.floor(lastMousePos.x + dx * t);
+                    const interpY = Math.floor(lastMousePos.y + dy * t);
+                    addParticles(interpX, interpY);
+                    if (i % 3 === 0) createTrail(interpX, interpY);
+                }
+                
+                lastMousePos = pos;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => { isDrawing = false; });
+        
+        // Touch events
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const touch = e.touches[0];
+            const pos = getGridPos(touch.clientX, touch.clientY);
+            lastMousePos = pos;
+            addParticles(pos.x, pos.y);
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isDrawing) {
+                const touch = e.touches[0];
+                const pos = getGridPos(touch.clientX, touch.clientY);
+                const dx = pos.x - lastMousePos.x;
+                const dy = pos.y - lastMousePos.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const steps = Math.max(1, Math.floor(distance));
+                
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const interpX = Math.floor(lastMousePos.x + dx * t);
+                    const interpY = Math.floor(lastMousePos.y + dy * t);
+                    addParticles(interpX, interpY);
+                }
+                
+                lastMousePos = pos;
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDrawing = false;
+        });
+        
+        // Ultimate physics simulation
+        function updatePhysics() {
+            if (isPaused) return;
+            
+            // Reset update flags and copy grid
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    nextGrid[y][x] = { ...grid[y][x], updated: false };
+                    grid[y][x].age++;
+                }
+            }
+            
+            particleCount = 0;
+            
+            // Process each cell with advanced physics
+            for (let y = ROWS - 1; y >= 0; y--) {
+                for (let x = 0; x < COLS; x++) {
+                    const cell = grid[y][x];
+                    const material = cell.material;
+                    
+                    if (material === MATERIALS.EMPTY || nextGrid[y][x].updated) continue;
+                    
+                    particleCount++;
+                    
+                    // Universal physics updates
+                    updateTemperature(x, y, cell);
+                    updatePressure(x, y, cell);
+                    updateElectricity(x, y, cell);
+                    updateMagnetism(x, y, cell);
+                    
+                    // Handle lifetime-based materials
+                    if (MATERIAL_PROPS[material].lifetime && cell.lifetime > 0) {
+                        cell.lifetime--;
+                        if (cell.lifetime <= 0) {
+                            handleMaterialDeath(x, y, cell);
+                            continue;
+                        }
+                    }
+                    
+                    // Material-specific physics
+                    switch (material) {
+                        case MATERIALS.SAND: updateSand(x, y, cell); break;
+                        case MATERIALS.WATER: updateWater(x, y, cell); break;
+                        case MATERIALS.FIRE: updateFire(x, y, cell); break;
+                        case MATERIALS.OIL: updateOil(x, y, cell); break;
+                        case MATERIALS.SMOKE:
+                        case MATERIALS.STEAM: updateGas(x, y, cell); break;
+                        case MATERIALS.ACID: updateAcid(x, y, cell); break;
+                        case MATERIALS.ICE: updateIce(x, y, cell); break;
+                        case MATERIALS.LAVA: updateLava(x, y, cell); break;
+                        case MATERIALS.METAL: updateMetal(x, y, cell); break;
+                        case MATERIALS.ELECTRIC:
+                        case MATERIALS.SPARK: updateElectric(x, y, cell); break;
+                        case MATERIALS.MAGNET: updateMagnet(x, y, cell); break;
+                        case MATERIALS.PLANT: updatePlant(x, y, cell); break;
+                        case MATERIALS.EXPLOSIVE: updateExplosive(x, y, cell); break;
+                        case MATERIALS.GLASS: updateGlass(x, y, cell); break;
+                        case MATERIALS.PLASMA: updatePlasma(x, y, cell); break;
+                    }
+                    
+                    nextGrid[y][x].updated = true;
+                }
+            }
+            
+            // Swap grids
+            [grid, nextGrid] = [nextGrid, grid];
+        }
+        
+        // Advanced physics functions
+        function updateTemperature(x, y, cell) {
+            // Heat diffusion
+            let avgTemp = cell.temperature;
+            let count = 1;
+            
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !(dx === 0 && dy === 0)) {
+                        avgTemp += grid[ny][nx].temperature;
+                        count++;
+                    }
+                }
+            }
+            
+            const targetTemp = avgTemp / count;
+            nextGrid[y][x].temperature += (targetTemp - cell.temperature) * 0.1;
+        }
+        
+        function updatePressure(x, y, cell) {
+            // Pressure wave propagation
+            if (cell.pressure > 2.0) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !(dx === 0 && dy === 0)) {
+                            nextGrid[ny][nx].pressure += (cell.pressure - 1.0) * 0.1;
+                        }
+                    }
+                }
+                nextGrid[y][x].pressure *= 0.9;
+            }
+        }
+        
+        function updateElectricity(x, y, cell) {
+            if (cell.charge > 0 && MATERIAL_PROPS[cell.material].conductive) {
+                // Electricity spreads through conductive materials
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !(dx === 0 && dy === 0)) {
+                            const neighbor = grid[ny][nx];
+                            if (MATERIAL_PROPS[neighbor.material].conductive && neighbor.charge < cell.charge) {
+                                const transfer = (cell.charge - neighbor.charge) * 0.3;
+                                nextGrid[ny][nx].charge += transfer;
+                                nextGrid[y][x].charge -= transfer;
+                                
+                                // Create sparks
+                                if (transfer > 10 && Math.random() < 0.1) {
+                                    createSpark(nx, ny);
+                                }
+                            }
+                        }
+                    }
+                }
+                nextGrid[y][x].charge *= 0.95; // Charge decay
+            }
+        }
+        
+        function updateMagnetism(x, y, cell) {
+            if (cell.material === MATERIALS.MAGNET) {
+                // Attract nearby magnetic materials
+                const magnetRange = 8;
+                for (let dy = -magnetRange; dy <= magnetRange; dy++) {
+                    for (let dx = -magnetRange; dx <= magnetRange; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !(dx === 0 && dy === 0)) {
+                            const neighbor = grid[ny][nx];
+                            if (MATERIAL_PROPS[neighbor.material].magnetic) {
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                if (distance <= magnetRange) {
+                                    const force = 1.0 / (distance + 1);
+                                    const dirX = dx > 0 ? -1 : dx < 0 ? 1 : 0;
+                                    const dirY = dy > 0 ? -1 : dy < 0 ? 1 : 0;
+                                    
+                                    if (Math.random() < force * 0.1) {
+                                        const targetX = Math.max(0, Math.min(COLS - 1, nx + dirX));
+                                        const targetY = Math.max(0, Math.min(ROWS - 1, ny + dirY));
+                                        
+                                        if (nextGrid[targetY][targetX].material === MATERIALS.EMPTY) {
+                                            nextGrid[targetY][targetX] = { ...neighbor };
+                                            nextGrid[ny][nx] = createEmptyCell();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        function createSpark(x, y) {
+            /*if (x >= 0 && x < COLS && y >= 0 && y < ROWS && nextGrid[y][x].material === MATERIALS.EMPTY) {
+                nextGrid[y][x] = {
+                    material: MATERIALS.SPARK,
+                    lifetime: 15,
+                    temperature: 500,
+                    velocity: { x: 0, y: 0 },
+                    charge: 50,
+                    pressure: 1.0,
+                    age: 0,
+                    updated: false
+                };
+            }*/
+        }
+        
+        function createEmptyCell() {
+            return {
+                material: MATERIALS.EMPTY, lifetime: 0, temperature: 20,
+                velocity: { x: 0, y: 0 }, charge: 0, pressure: 1.0, age: 0, updated: false
+            };
+        }
+        
+        function handleMaterialDeath(x, y, cell) {
+            switch (cell.material) {
+                case MATERIALS.FIRE:
+                    if (Math.random() < 0.4) {
+                        nextGrid[y][x] = {
+                            material: MATERIALS.SMOKE,
+                            lifetime: 120,
+                            temperature: 100,
+                            velocity: { x: 0, y: -1 },
+                            charge: 0, pressure: 1.0, age: 0, updated: false
+                        };
+                    } else {
+                        nextGrid[y][x] = createEmptyCell();
+                    }
+                    break;
+                case MATERIALS.EXPLOSIVE:
+                    createExplosion(x, y, 8);
+                    break;
+                default:
+                    nextGrid[y][x] = createEmptyCell();
+            }
+        }
+        
+        function createExplosion(centerX, centerY, radius) {
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance <= radius) {
+                        const nx = centerX + dx;
+                        const ny = centerY + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+                            const force = 1.0 - (distance / radius);
+                            
+                            if (force > 0.7) {
+                                // Create fire at explosion center
+                                nextGrid[ny][nx] = {
+                                    material: MATERIALS.FIRE,
+                                    lifetime: 60,
+                                    temperature: 1000,
+                                    velocity: { x: dx * force, y: dy * force },
+                                    charge: 0, pressure: 5.0, age: 0, updated: false
+                                };
+                            } else if (force > 0.3) {
+                                // Create pressure waves
+                                nextGrid[ny][nx].pressure += force * 3.0;
+                                nextGrid[ny][nx].temperature += force * 200;
+                                
+                                // Chain reaction with other explosives
+                                if (grid[ny][nx].material === MATERIALS.EXPLOSIVE) {
+                                    nextGrid[ny][nx].lifetime = Math.min(nextGrid[ny][nx].lifetime, 10);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Enhanced material update functions
+        function updateSand(x, y, cell) {
+            const gravity = gravityStrength * 0.1;
+            
+            if (y + 1 < ROWS && canMoveTo(x, y + 1, MATERIALS.SAND)) {
+                moveParticle(x, y, x, y + 1);
+            } else if (y + 1 < ROWS) {
+                const leftEmpty = x - 1 >= 0 && canMoveTo(x - 1, y + 1, MATERIALS.SAND);
+                const rightEmpty = x + 1 < COLS && canMoveTo(x + 1, y + 1, MATERIALS.SAND);
+                
+                if (leftEmpty && rightEmpty) {
+                    const direction = Math.random() < 0.5 ? -1 : 1;
+                    moveParticle(x, y, x + direction, y + 1);
+                } else if (leftEmpty) {
+                    moveParticle(x, y, x - 1, y + 1);
+                } else if (rightEmpty) {
+                    moveParticle(x, y, x + 1, y + 1);
+                }
+            }
+        }
+        
+        function updateWater(x, y, cell) {
+            const gravity = gravityStrength * 0.1;
+            
+            if (y + 1 < ROWS && canMoveTo(x, y + 1, MATERIALS.WATER)) {
+                moveParticle(x, y, x, y + 1);
+            } else {
+                const leftEmpty = x - 1 >= 0 && canMoveTo(x - 1, y, MATERIALS.WATER);
+                const rightEmpty = x + 1 < COLS && canMoveTo(x + 1, y, MATERIALS.WATER);
+                
+                if (leftEmpty && rightEmpty) {
+                    const direction = Math.random() < 0.5 ? -1 : 1;
+                    if (Math.random() < 0.4) moveParticle(x, y, x + direction, y);
+                } else if (leftEmpty && Math.random() < 0.4) {
+                    moveParticle(x, y, x - 1, y);
+                } else if (rightEmpty && Math.random() < 0.4) {
+                    moveParticle(x, y, x + 1, y);
+                }
+            }
+        }
+        
+        function updateFire(x, y, cell) {
+            // Fire spreads and burns flammable materials
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+                        const neighbor = grid[ny][nx];
+                        if (MATERIAL_PROPS[neighbor.material]?.flammable && Math.random() < 0.15) {
+                            nextGrid[ny][nx] = {
+                                material: MATERIALS.FIRE,
+                                lifetime: 80,
+                                temperature: 800,
+                                velocity: { x: 0, y: -1 },
+                                charge: 0, pressure: 1.0, age: 0, updated: false
+                            };
+                        }
+                        // Heat nearby materials
+                        if (neighbor.material !== MATERIALS.EMPTY) {
+                            nextGrid[ny][nx].temperature = Math.min(1000, neighbor.temperature + 20);
+                        }
+                    }
+                }
+            }
+            
+            // Fire rises with wind effect
+            const windEffect = windForce * 0.1;
+            if (y - 1 >= 0 && Math.random() < 0.4) {
+                const targetX = Math.max(0, Math.min(COLS - 1, x + Math.round(windEffect * (Math.random() - 0.5))));
+                if (nextGrid[y - 1][targetX].material === MATERIALS.EMPTY) {
+                    nextGrid[y - 1][targetX] = { ...cell };
+                    nextGrid[y][x] = createEmptyCell();
+                }
+            }
+        }
+        
+        function updateOil(x, y, cell) {
+            // Oil behaves like water but slower
+            if (y + 1 < ROWS && canMoveTo(x, y + 1, MATERIALS.OIL)) {
+                moveParticle(x, y, x, y + 1);
+            } else {
+                const leftEmpty = x - 1 >= 0 && canMoveTo(x - 1, y, MATERIALS.OIL);
+                const rightEmpty = x + 1 < COLS && canMoveTo(x + 1, y, MATERIALS.OIL);
+                
+                if (leftEmpty && rightEmpty) {
+                    const direction = Math.random() < 0.5 ? -1 : 1;
+                    if (Math.random() < 0.2) moveParticle(x, y, x + direction, y);
+                } else if (leftEmpty && Math.random() < 0.2) {
+                    moveParticle(x, y, x - 1, y);
+                } else if (rightEmpty && Math.random() < 0.2) {
+                    moveParticle(x, y, x + 1, y);
+                }
+            }
+        }
+        
+        function updateGas(x, y, cell) {
+            const windEffect = windForce * 0.2 * (Math.random() - 0.5);
+            
+            if (y - 1 >= 0 && Math.random() < 0.8) {
+                const targetX = Math.max(0, Math.min(COLS - 1, x + Math.round(windEffect)));
+                if (nextGrid[y - 1][targetX].material === MATERIALS.EMPTY) {
+                    nextGrid[y - 1][targetX] = { ...cell };
+                    nextGrid[y][x] = createEmptyCell();
+                }
+            }
+            
+            if (Math.random() < 0.4) {
+                const direction = Math.random() < 0.5 ? -1 : 1;
+                const nx = x + direction;
+                if (nx >= 0 && nx < COLS && nextGrid[y][nx].material === MATERIALS.EMPTY) {
+                    nextGrid[y][nx] = { ...cell };
+                    nextGrid[y][x] = createEmptyCell();
+                }
+            }
+        }
+        
+        function updateAcid(x, y, cell) {
+            // Acid dissolves materials
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+                        const neighbor = grid[ny][nx];
+                        if (MATERIAL_PROPS[neighbor.material]?.dissolves && Math.random() < 0.08) {
+                            nextGrid[ny][nx] = createEmptyCell();
+                        }
+                    }
+                }
+            }
+            updateWater(x, y, cell); // Acid flows like water
+        }
+        
+        function updateIce(x, y, cell) {
+            // Ice melts when hot
+            if (cell.temperature > 32) {
+                nextGrid[y][x] = {
+                    material: MATERIALS.WATER,
+                    lifetime: 0,
+                    temperature: 35,
+                    velocity: { x: 0, y: 0 },
+                    charge: 0, pressure: 1.0, age: 0, updated: false
+                };
+            }
+        }
+        
+        function updateLava(x, y, cell) {
+            // Lava cools over time
+            if (cell.temperature < 600) {
+                nextGrid[y][x] = {
+                    material: MATERIALS.STONE,
+                    lifetime: 0,
+                    temperature: cell.temperature,
+                    velocity: { x: 0, y: 0 },
+                    charge: 0, pressure: 1.0, age: 0, updated: false
+                };
+                return;
+            }
+            
+            // Lava flows like thick liquid
+            if (y + 1 < ROWS && canMoveTo(x, y + 1, MATERIALS.LAVA)) {
+                moveParticle(x, y, x, y + 1);
+            } else if (Math.random() < 0.1) {
+                const leftEmpty = x - 1 >= 0 && canMoveTo(x - 1, y, MATERIALS.LAVA);
+                const rightEmpty = x + 1 < COLS && canMoveTo(x + 1, y, MATERIALS.LAVA);
+                
+                if (leftEmpty && rightEmpty) {
+                    const direction = Math.random() < 0.5 ? -1 : 1;
+                    moveParticle(x, y, x + direction, y);
+                } else if (leftEmpty) {
+                    moveParticle(x, y, x - 1, y);
+                } else if (rightEmpty) {
+                    moveParticle(x, y, x + 1, y);
+                }
+            }
+            
+            // Lava ignites flammable materials
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+                        const neighbor = grid[ny][nx];
+                        if (MATERIAL_PROPS[neighbor.material]?.flammable && Math.random() < 0.1) {
+                            nextGrid[ny][nx] = {
+                                material: MATERIALS.FIRE,
+                                lifetime: 60,
+                                temperature: 800,
+                                velocity: { x: 0, y: 0 },
+                                charge: 0, pressure: 1.0, age: 0, updated: false
+                            };
+                        }
+                    }
+                }
+            }
+        }
+        
+        function updateMetal(x, y, cell) {
+            // Metal conducts electricity and is affected by magnets
+            if (cell.charge > 0) {
+                // Create sparks when highly charged
+                if (cell.charge > 50 && Math.random() < 0.05) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            const nx = x + dx, ny = y + dy;
+                            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                                nextGrid[ny][nx].material === MATERIALS.EMPTY && Math.random() < 0.3) {
+                                createSpark(nx, ny);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        function updateElectric(x, y, cell) {
+            // Electricity jumps to nearby conductors
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !(dx === 0 && dy === 0)) {
+                        const neighbor = grid[ny][nx];
+                        if (MATERIAL_PROPS[neighbor.material].conductive && Math.random() < 0.2) {
+                            nextGrid[ny][nx].charge += 30;
+                            createSpark((x + nx) / 2, (y + ny) / 2);
+                        }
+                    }
+                }
+            }
+        }
+        
+        function updateMagnet(x, y, cell) {
+            // Magnets create magnetic fields (handled in updateMagnetism)
+        }
+        
+        function updatePlant(x, y, cell) {
+            // Plants grow over time
+            if (cell.age > 100 && Math.random() < 0.01) {
+                // Try to grow in adjacent cells
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                            nextGrid[ny][nx].material === MATERIALS.EMPTY && Math.random() < 0.1) {
+                            nextGrid[ny][nx] = {
+                                material: MATERIALS.PLANT,
+                                lifetime: 0,
+                                temperature: 20,
+                                velocity: { x: 0, y: 0 },
+                                charge: 0, pressure: 1.0, age: 0, updated: false
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // Plants die if too hot or cold
+            if (cell.temperature > 100 || cell.temperature < -10) {
+                nextGrid[y][x] = createEmptyCell();
+            }
+        }
+        
+        function updateExplosive(x, y, cell) {
+            // Explosives detonate under pressure, heat, or electrical charge
+            if (cell.temperature > 200 || cell.pressure > 3.0 || cell.charge > 20) {
+                nextGrid[y][x].lifetime = Math.min(nextGrid[y][x].lifetime, 5);
+            }
+        }
+        
+        function updateGlass(x, y, cell) {
+            // Glass breaks under high pressure
+            if (cell.pressure > 4.0 && Math.random() < 0.1) {
+                nextGrid[y][x] = createEmptyCell();
+            }
+        }
+        
+        function updatePlasma(x, y, cell) {
+            // Plasma is super-heated gas that conducts electricity
+            updateGas(x, y, cell);
+            
+            // Plasma creates electrical discharges
+            if (Math.random() < 0.1) {
+                for (let dy = -2; dy <= 2; dy++) {
+                    for (let dx = -2; dx <= 2; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && Math.random() < 0.05) {
+                            createSpark(nx, ny);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Utility functions for physics
+        function canMoveTo(x, y, material) {
+            if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return false;
+            const target = nextGrid[y][x];
+            const targetDensity = MATERIAL_PROPS[target.material].density;
+            const materialDensity = MATERIAL_PROPS[material].density;
+            return target.material === MATERIALS.EMPTY || materialDensity > targetDensity;
+        }
+        
+        function moveParticle(fromX, fromY, toX, toY) {
+            if (toX < 0 || toX >= COLS || toY < 0 || toY >= ROWS) return;
+            
+            const temp = nextGrid[toY][toX];
+            nextGrid[toY][toX] = nextGrid[fromY][fromX];
+            nextGrid[fromY][fromX] = temp;
+        }
+        
+        // Ultimate rendering system with advanced effects
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    const cell = grid[y][x];
+                    const material = cell.material;
+                    
+                    if (material !== MATERIALS.EMPTY) {
+                        let color = [...BASE_COLORS[material]];
+                        
+                        // Dynamic color effects
+                        applyDynamicColors(color, cell, material);
+                        
+                        // Fill the cell area with enhanced rendering
+                        for (let py = 0; py < CELL_SIZE; py++) {
+                            for (let px = 0; px < CELL_SIZE; px++) {
+                                const pixelX = x * CELL_SIZE + px;
+                                const pixelY = y * CELL_SIZE + py;
+                                
+                                if (pixelX < canvas.width && pixelY < canvas.height) {
+                                    const index = (pixelY * canvas.width + pixelX) * 4;
+                                    data[index] = color[0];
+                                    data[index + 1] = color[1];
+                                    data[index + 2] = color[2];
+                                    data[index + 3] = color[3];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Add post-processing effects
+            addPostProcessingEffects();
+        }
+        
+        function applyDynamicColors(color, cell, material) {
+            switch (material) {
+                case MATERIALS.FIRE:
+                    const fireIntensity = cell.lifetime / 80;
+                    color[0] = Math.floor(255 * fireIntensity);
+                    color[1] = Math.floor(69 * fireIntensity);
+                    color[2] = 0;
+                    break;
+                    
+                case MATERIALS.SMOKE:
+                case MATERIALS.STEAM:
+                    const gasAlpha = Math.floor(255 * (cell.lifetime / 150));
+                    color[3] = gasAlpha;
+                    break;
+                    
+                case MATERIALS.WATER:
+                    if (cell.temperature > 50) {
+                        color[0] = Math.min(255, color[0] + (cell.temperature - 50) * 2);
+                    }
+                    if (cell.charge > 0) {
+                        color[1] = Math.min(255, color[1] + cell.charge);
+                    }
+                    break;
+                    
+                case MATERIALS.LAVA:
+                    const lavaTemp = cell.temperature / 1200;
+                    color[0] = Math.floor(255 * lavaTemp);
+                    color[1] = Math.floor(100 * lavaTemp);
+                    color[2] = 0;
+                    break;
+                    
+                case MATERIALS.ELECTRIC:
+                case MATERIALS.SPARK:
+                    const electricIntensity = cell.charge / 100;
+                    color[0] = 255;
+                    color[1] = Math.floor(255 * electricIntensity);
+                    color[2] = Math.floor(100 * electricIntensity);
+                    break;
+                    
+                case MATERIALS.PLASMA:
+                    const plasmaPhase = (Date.now() * 0.01 + cell.age * 0.1) % (Math.PI * 2);
+                    color[0] = Math.floor(138 + Math.sin(plasmaPhase) * 50);
+                    color[1] = Math.floor(43 + Math.cos(plasmaPhase) * 30);
+                    color[2] = Math.floor(226 + Math.sin(plasmaPhase * 2) * 29);
+                    break;
+                    
+                case MATERIALS.PLANT:
+                    const growth = Math.min(1, cell.age / 200);
+                    color[1] = Math.floor(139 * (0.5 + growth * 0.5));
+                    break;
+            }
+            
+            // Add texture variation
+            if (Math.random() < 0.15) {
+                const variation = (Math.random() - 0.5) * 40;
+                color[0] = Math.max(0, Math.min(255, color[0] + variation));
+                color[1] = Math.max(0, Math.min(255, color[1] + variation));
+                color[2] = Math.max(0, Math.min(255, color[2] + variation));
+            }
+        }
+        
+        function addPostProcessingEffects() {
+            // Add glow effects for certain materials
+            ctx.globalCompositeOperation = 'screen';
+            
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    const cell = grid[y][x];
+                    
+                    if (cell.material === MATERIALS.FIRE || cell.material === MATERIALS.LAVA || 
+                        cell.material === MATERIALS.ELECTRIC || cell.material === MATERIALS.PLASMA) {
+                        
+                        const pixelX = x * CELL_SIZE;
+                        const pixelY = y * CELL_SIZE;
+                        
+                        const gradient = ctx.createRadialGradient(
+                            pixelX + CELL_SIZE/2, pixelY + CELL_SIZE/2, 0,
+                            pixelX + CELL_SIZE/2, pixelY + CELL_SIZE/2, CELL_SIZE * 2
+                        );
+                        
+                        let glowColor = 'rgba(255, 100, 0, 0.3)';
+                        if (cell.material === MATERIALS.ELECTRIC) glowColor = 'rgba(255, 255, 0, 0.4)';
+                        if (cell.material === MATERIALS.PLASMA) glowColor = 'rgba(138, 43, 226, 0.3)';
+                        
+                        gradient.addColorStop(0, glowColor);
+                        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(pixelX - CELL_SIZE, pixelY - CELL_SIZE, CELL_SIZE * 4, CELL_SIZE * 4);
+                    }
+                }
+            }
+            
+            ctx.globalCompositeOperation = 'source-over';
+        }
+        
+        // Performance monitoring and stats
+        function updateStats(currentTime) {
+            frameCount++;
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                document.getElementById('fpsCounter').textContent = `FPS: ${fps}`;
+                document.getElementById('particleCount').textContent = `Particles: ${particleCount}`;
+                
+                // Update temperature and pressure displays
+                const mousePos = getGridPos(canvas.width / 2, canvas.height / 2);
+                if (mousePos.x >= 0 && mousePos.x < COLS && mousePos.y >= 0 && mousePos.y < ROWS) {
+                    const centerCell = grid[mousePos.y][mousePos.x];
+                    document.getElementById('tempDisplay').textContent = `Temp: ${Math.round(centerCell.temperature)}°C`;
+                    document.getElementById('pressureDisplay').textContent = `Pressure: ${centerCell.pressure.toFixed(1)}`;
+                }
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+        
+        // Main animation loop
+        function animate(currentTime) {
+            updateStats(currentTime);
+            updatePhysics();
+            render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Initialize and start the ultimate simulation
+        console.log('🚀 Ultimate Physics Sandbox initialized!');
+        console.log('Features: Advanced materials, electricity, magnetism, explosions, plant growth, and more!');
+        
+        requestAnimationFrame(animate);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99123605a663cd80',t:'MTc2MDg5NzIwNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
