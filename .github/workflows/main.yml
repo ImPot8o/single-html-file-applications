@@ -1,51 +1,183 @@
-name: Deploy Custom Index to GitHub Pages
+name: Generate Styled Index
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build:
+  build-index:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Disable Jekyll so GitHub Pages doesn't interfere
-      - name: Disable Jekyll
+      - name: Generate index.html
         run: |
-          touch .nojekyll
+          set -e
 
-      # Ensure index.html exists (fails fast if missing)
-      - name: Verify custom index
+          INDEX="index.html"
+
+          cat > $INDEX <<'HTML'
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directory Index</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+HTML
+
+          # ---- STYLES ----
+          cat >> $INDEX <<'CSS'
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:linear-gradient(135deg,#0f0f1a,#1a1a2e,#16213e);
+  color:#e2e8f0;
+  padding:40px 20px
+}
+.container{max-width:900px;margin:auto}
+header{text-align:center;margin-bottom:50px}
+h1{
+  font-size:2.5rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent
+}
+.subtitle{color:#64748b;font-family:'JetBrains Mono',monospace}
+.file-count{
+  display:inline-block;
+  margin-top:15px;
+  padding:6px 14px;
+  border-radius:20px;
+  background:rgba(102,126,234,.15);
+  border:1px solid rgba(102,126,234,.3);
+  color:#a5b4fc;
+  font-size:.85rem
+}
+.category{margin-bottom:30px}
+.category-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:10px
+}
+.category-icon{
+  width:36px;height:36px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.category-title{font-weight:600}
+.category-count{
+  margin-left:auto;
+  font-size:.75rem;
+  background:rgba(255,255,255,.05);
+  padding:3px 10px;
+  border-radius:12px;
+  color:#64748b
+}
+ul{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:10px
+}
+a{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:14px 16px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  text-decoration:none;
+  color:#cbd5e1;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.9rem;
+  transition:.2s
+}
+a:hover{
+  transform:translateY(-2px);
+  background:rgba(102,126,234,.1);
+  border-color:rgba(102,126,234,.3)
+}
+.file-icon{
+  width:32px;height:32px;
+  border-radius:8px;
+  background:rgba(255,255,255,.05);
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+CSS
+
+          cat >> $INDEX <<'HTML'
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>📁 Directory Index</h1>
+<p class="subtitle">Auto-generated file listing</p>
+<span class="file-count" id="fileCount">Loading…</span>
+</header>
+<div id="categories">
+HTML
+
+          TOTAL=0
+
+          for dir in */ ; do
+            [ "$dir" = ".github/" ] && continue
+
+            files=$(find "$dir" -maxdepth 1 -type f -iname "*.html" | sort)
+            [ -z "$files" ] && continue
+
+            COUNT=$(echo "$files" | wc -l)
+            TOTAL=$((TOTAL + COUNT))
+
+            NAME=$(basename "$dir")
+
+            echo "<div class=\"category\">" >> $INDEX
+            echo "<div class=\"category-header\">" >> $INDEX
+            echo "<div class=\"category-icon\">📁</div>" >> $INDEX
+            echo "<span class=\"category-title\">$NAME</span>" >> $INDEX
+            echo "<span class=\"category-count\">$COUNT files</span>" >> $INDEX
+            echo "</div><ul>" >> $INDEX
+
+            while read -r file; do
+              base=$(basename "$file")
+              echo "<li><a href=\"./$file\"><span class=\"file-icon\">📄</span><span>$base</span></a></li>" >> $INDEX
+            done <<< "$files"
+
+            echo "</ul></div>" >> $INDEX
+          done
+
+          cat >> $INDEX <<'HTML'
+</div>
+</div>
+<script>
+const total = document.querySelectorAll('#categories a').length;
+document.getElementById('fileCount').textContent = total + " files indexed";
+</script>
+</body>
+</html>
+HTML
+
+      - name: Commit index.html
         run: |
-          if [ ! -f index.html ]; then
-            echo "index.html not found at repo root"
-            exit 1
-          fi
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add index.html
+          git commit -m "Auto-generate styled index" || exit 0
+          git push
