@@ -1,0 +1,51 @@
+name: Deploy Custom Index to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Disable Jekyll so GitHub Pages doesn't interfere
+      - name: Disable Jekyll
+        run: |
+          touch .nojekyll
+
+      # Ensure index.html exists (fails fast if missing)
+      - name: Verify custom index
+        run: |
+          if [ ! -f index.html ]; then
+            echo "index.html not found at repo root"
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
