@@ -1,8 +1,8 @@
-name: Deploy with Index
+name: Deploy Styled Index
 
 on:
   push:
-    branches: ["main"]  # Change this if your branch is named 'master'
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -17,30 +17,84 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate Index HTML
+      - name: Generate styled index.html
         run: |
-          # Start the HTML file
-          echo "<!DOCTYPE html><html><head><title>File Index</title><style>body{font-family:sans-serif;max-width:800px;margin:20px auto;padding:20px;line-height:1.6} a{text-decoration:none;color:#0366d6} a:hover{text-decoration:underline} li{margin:5px 0}</style></head><body><h1>Directory Index</h1><ul>" > index.html
-          
-          # Find all HTML files, sort them, and add to list
-          # We exclude index.html to prevent a self-link
-          find . -name "*.html" -not -name "index.html" | sort | while read file; do
-            # Strip the leading ./ for a cleaner display name
-            clean_name=${file#./}
-            echo "<li><a href=\"$file\">$clean_name</a></li>" >> index.html
-          done
-          
-          # Close the HTML tags
-          echo "</ul></body></html>" >> index.html
+          python << 'EOF'
+          import os
+          from collections import defaultdict
+          from html import escape
 
-      - name: Upload artifact
+          TEMPLATE_PATH = "File Index.html"
+          OUTPUT_PATH = "index.html"
+
+          categories = defaultdict(list)
+
+          for root, _, files in os.walk("."):
+            if root.startswith("./.git"):
+              continue
+            for file in files:
+              if file.endswith(".html") and file not in ["index.html", "File Index.html"]:
+                folder = root.replace("./", "").split("/")[0]
+                categories[folder].append(os.path.join(root, file).replace("./", ""))
+
+          with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
+            template = f.read()
+
+          blocks = []
+
+          ICONS = {
+            "Art": "🎨",
+            "Coding": "💻",
+            "Games": "🕹️",
+            "Music": "🎵",
+            "Guides": "📚",
+            "Tools": "🛠️",
+            "Writing": "✍️",
+            "Emulators": "🎮",
+            "Other": "📁"
+          }
+
+          for category, files in sorted(categories.items()):
+            icon = ICONS.get(category, "📁")
+            items = "\n".join(
+              f'''<li><a href="./{escape(f)}">
+              <span class="file-icon">📄</span>
+              <span class="file-name">{escape(os.path.basename(f))}</span>
+              </a></li>'''
+              for f in sorted(files)
+            )
+
+            blocks.append(f"""
+            <div class="category cat-{category.lower()}">
+              <div class="category-header">
+                <div class="category-icon">{icon}</div>
+                <span class="category-title">{escape(category)}</span>
+                <span class="category-count">{len(files)} files</span>
+              </div>
+              <ul>
+                {items}
+              </ul>
+            </div>
+            """)
+
+          final_html = template.replace(
+            '<div id="categories">',
+            '<div id="categories">\n' + "\n".join(blocks)
+          )
+
+          with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+            f.write(final_html)
+          EOF
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "."
 
   deploy:
     environment:
