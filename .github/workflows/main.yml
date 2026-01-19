@@ -9,20 +9,21 @@ permissions:
   contents: write
 
 jobs:
-  build-index:
+  generate-index:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate index.html
+      - name: Build index.html
+        shell: bash
         run: |
           set -e
 
           INDEX="index.html"
 
-          cat > $INDEX <<'HTML'
+          cat > "$INDEX" <<'HTML'
 <!doctype html>
 <html lang="en">
 <head>
@@ -31,10 +32,6 @@ jobs:
 <title>Directory Index</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-HTML
-
-          # ---- STYLES ----
-          cat >> $INDEX <<'CSS'
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:'Space Grotesk',sans-serif;
@@ -120,9 +117,6 @@ a:hover{
   align-items:center;
   justify-content:center
 }
-CSS
-
-          cat >> $INDEX <<'HTML'
 </style>
 </head>
 <body>
@@ -137,44 +131,45 @@ HTML
 
           TOTAL=0
 
-          for dir in */ ; do
+          for dir in */; do
             [ "$dir" = ".github/" ] && continue
 
-            files=$(find "$dir" -maxdepth 1 -type f -iname "*.html" | sort)
-            [ -z "$files" ] && continue
+            FILES=$(find "$dir" -maxdepth 1 -type f -iname "*.html" | sort)
+            [ -z "$FILES" ] && continue
 
-            COUNT=$(echo "$files" | wc -l)
+            COUNT=$(echo "$FILES" | wc -l)
             TOTAL=$((TOTAL + COUNT))
-
             NAME=$(basename "$dir")
 
-            echo "<div class=\"category\">" >> $INDEX
-            echo "<div class=\"category-header\">" >> $INDEX
-            echo "<div class=\"category-icon\">📁</div>" >> $INDEX
-            echo "<span class=\"category-title\">$NAME</span>" >> $INDEX
-            echo "<span class=\"category-count\">$COUNT files</span>" >> $INDEX
-            echo "</div><ul>" >> $INDEX
+            {
+              echo "<div class=\"category\">"
+              echo "<div class=\"category-header\">"
+              echo "<div class=\"category-icon\">📁</div>"
+              echo "<span class=\"category-title\">$NAME</span>"
+              echo "<span class=\"category-count\">$COUNT files</span>"
+              echo "</div><ul>"
+            } >> "$INDEX"
 
             while read -r file; do
               base=$(basename "$file")
-              echo "<li><a href=\"./$file\"><span class=\"file-icon\">📄</span><span>$base</span></a></li>" >> $INDEX
-            done <<< "$files"
+              echo "<li><a href=\"./$file\"><span class=\"file-icon\">📄</span><span>$base</span></a></li>" >> "$INDEX"
+            done <<< "$FILES"
 
-            echo "</ul></div>" >> $INDEX
+            echo "</ul></div>" >> "$INDEX"
           done
 
-          cat >> $INDEX <<'HTML'
+          cat >> "$INDEX" <<'HTML'
 </div>
 </div>
 <script>
-const total = document.querySelectorAll('#categories a').length;
-document.getElementById('fileCount').textContent = total + " files indexed";
+document.getElementById('fileCount').textContent =
+  document.querySelectorAll('#categories a').length + ' files indexed';
 </script>
 </body>
 </html>
 HTML
 
-      - name: Commit index.html
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
